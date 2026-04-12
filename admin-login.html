@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin — MCDEM</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body { min-height: 100vh; display: flex; flex-direction: column; background: var(--cream); }
+
+    .login-page {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 24px;
+    }
+    .login-wrap {
+      display: grid;
+      grid-template-columns: 1fr 440px;
+      gap: 80px;
+      align-items: center;
+      max-width: 900px;
+      width: 100%;
+    }
+    .login-left h1 {
+      font-family: var(--font-display);
+      font-size: clamp(32px, 4vw, 48px);
+      font-weight: 700;
+      color: var(--charcoal);
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      margin-bottom: 14px;
+    }
+    .login-left p { font-size: 15px; color: var(--slate); line-height: 1.7; margin-bottom: 20px; }
+    .login-left .notice {
+      font-size: 12px;
+      color: var(--slate-mid);
+      padding: 12px 16px;
+      background: var(--warm-white);
+      border-radius: var(--radius-md);
+      border-left: 2px solid var(--sky-mid);
+      line-height: 1.65;
+    }
+    .login-card {
+      background: var(--warm-white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      padding: 36px 36px;
+      box-shadow: 0 4px 32px rgba(0,0,0,0.06);
+    }
+    .login-card-title {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--charcoal);
+      margin-bottom: 24px;
+    }
+    .login-err {
+      display: none;
+      font-size: 13px;
+      color: #b83232;
+      background: #fdecea;
+      border: 1px solid #f5c0c0;
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      margin-bottom: 16px;
+    }
+    .login-err.show { display: block; }
+    .login-card .btn { width: 100%; justify-content: center; padding: 12px; margin-top: 6px; }
+    .demo-hint {
+      text-align: center;
+      font-size: 11px;
+      color: var(--slate-mid);
+      margin-top: 16px;
+    }
+
+    @media (max-width: 700px) {
+      .login-wrap { grid-template-columns: 1fr; gap: 32px; }
+      .login-left { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="site-nav" id="site-nav"></nav>
+<div class="nav-spacer"></div>
+
+<div class="login-page">
+  <div class="login-wrap">
+
+    <div class="login-left">
+      <p class="eyebrow" style="margin-bottom:16px">Webmaster Access</p>
+      <h1>Manage the<br>record.</h1>
+      <p>Add meeting recordings, transcripts, speaker details, timestamps, and editorial commentary. All entries are reviewed before publishing.</p>
+      <div class="notice">
+        This area is for authorized webmasters only. Member login and public commentary submission are planned for a future release.
+      </div>
+    </div>
+
+    <div class="login-card">
+      <div class="login-card-title">Sign in</div>
+      <div class="login-err" id="login-err">Incorrect username or password.</div>
+      <form onsubmit="handleLogin(event)">
+        <div class="field">
+          <label>Username</label>
+          <input type="text" id="uname" autocomplete="username" placeholder="webmaster@example.com">
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <input type="password" id="pw" autocomplete="current-password" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;">
+        </div>
+        <button type="submit" class="btn btn-dark">Sign in &rarr;</button>
+      </form>
+      <p class="demo-hint">Demo: <strong>admin</strong> / <strong>demo</strong> — placeholder only</p>
+      <!-- TODO: Replace with real auth (Netlify Identity, Firebase Auth, or custom JWT) -->
+    </div>
+
+  </div>
+</div>
+
+<script src="shared.js"></script>
+<script>
+  renderNav(null);
+  injectCountyModal();
+
+  function handleLogin(e) {
+    e.preventDefault();
+    const u = document.getElementById('uname').value;
+    const p = document.getElementById('pw').value;
+    if (u === 'admin' && p === 'demo') {
+      window.location.href = 'admin-video.html';
+    } else {
+      document.getElementById('login-err').classList.add('show');
+    }
+  }
+</script>
+</body>
+</html>

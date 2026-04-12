@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Precinct — Pitch One-Pager</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 400;
+    color: #1a1a1a;
+    background: #f7f6f2;
+    min-height: 100vh;
+    padding: 3rem 1.5rem;
+  }
+
+  .op-root {
+    max-width: 820px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 16px;
+    padding: 3rem 3.5rem 4rem;
+    border: 0.5px solid #ddd;
+  }
+
+  .op-eyebrow {
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #888;
+    margin-bottom: 0.5rem;
+  }
+
+  .op-headline {
+    font-family: 'DM Serif Display', serif;
+    font-size: 42px;
+    line-height: 1.1;
+    margin-bottom: 0.25rem;
+    color: #1a1a1a;
+  }
+
+  .op-headline em {
+    font-style: italic;
+    color: #185FA5;
+  }
+
+  .op-subhead {
+    font-size: 15px;
+    color: #555;
+    margin: 0.6rem 0 2rem;
+    line-height: 1.65;
+    max-width: 580px;
+  }
+
+  hr.op-divider {
+    border: none;
+    border-top: 0.5px solid #e0e0e0;
+    margin: 0 0 2rem;
+  }
+
+  .op-section-label {
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #888;
+    margin-bottom: 0.75rem;
+  }
+
+  .op-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .op-grid-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .op-card {
+    background: #fff;
+    border: 0.5px solid #ddd;
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+  }
+
+  .op-card-label {
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #888;
+    margin-bottom: 0.5rem;
+  }
+
+  .op-card-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 18px;
+    line-height: 1.3;
+    margin-bottom: 0.5rem;
+    color: #1a1a1a;
+  }
+
+  .op-card-body {
+    font-size: 13px;
+    line-height: 1.65;
+    color: #555;
+  }
+
+  .op-accent-card {
+    background: #E6F1FB;
+    border: 0.5px solid #B5D4F4;
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1rem;
+  }
+
+  .op-accent-card .op-card-label { color: #185FA5; }
+  .op-accent-card .op-card-title { color: #0C447C; }
+  .op-accent-card .op-card-body { color: #185FA5; }
+
+  .op-stat {
+    background: #f5f4f0;
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+  }
+
+  .op-stat-num {
+    font-family: 'DM Serif Display', serif;
+    font-size: 30px;
+    color: #1a1a1a;
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .op-stat-label {
+    font-size: 12px;
+    color: #666;
+    line-height: 1.4;
+  }
+
+  .op-pill-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 1.5rem;
+  }
+
+  .op-pill {
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    border: 0.5px solid #ccc;
+    color: #666;
+    background: #f5f4f0;
+  }
+
+  .op-pill-blue {
+    background: #E6F1FB;
+    border-color: #B5D4F4;
+    color: #185FA5;
+  }
+
+  .op-flow {
+    display: flex;
+    align-items: stretch;
+    margin-bottom: 1.5rem;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 0.5px solid #ddd;
+  }
+
+  .op-flow-step {
+    flex: 1;
+    background: #fff;
+    padding: 0.875rem 1rem;
+    border-right: 0.5px solid #ddd;
+  }
+
+  .op-flow-step:last-child { border-right: none; }
+
+  .op-flow-num {
+    font-size: 11px;
+    color: #185FA5;
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+
+  .op-flow-text {
+    font-size: 13px;
+    color: #333;
+    line-height: 1.45;
+  }
+
+  .op-footer-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+
+  .op-ask-card {
+    background: #0C447C;
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+  }
+
+  .op-ask-label {
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #85B7EB;
+    margin-bottom: 0.5rem;
+  }
+
+  .op-ask-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    color: #E6F1FB;
+    margin-bottom: 0.5rem;
+    line-height: 1.2;
+  }
+
+  .op-ask-body {
+    font-size: 13px;
+    color: #85B7EB;
+    line-height: 1.6;
+  }
+
+  .op-contact-card {
+    background: #f5f4f0;
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .op-contact-label {
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #888;
+    margin-bottom: 0.5rem;
+  }
+
+  .op-contact-name {
+    font-size: 15px;
+    font-weight: 500;
+    color: #1a1a1a;
+    margin-bottom: 4px;
+  }
+
+  .op-contact-detail {
+    font-size: 13px;
+    color: #555;
+    line-height: 1.6;
+  }
+
+  .op-geo-tag {
+    display: inline-block;
+    font-size: 12px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    background: #EAF3DE;
+    border: 0.5px solid #C0DD97;
+    color: #3B6D11;
+  }
+
+  @media (max-width: 600px) {
+    .op-root { padding: 2rem 1.5rem; }
+    .op-headline { font-size: 30px; }
+    .op-grid, .op-grid-3, .op-footer-row { grid-template-columns: 1fr; }
+    .op-flow { flex-direction: column; }
+    .op-flow-step { border-right: none; border-bottom: 0.5px solid #ddd; }
+    .op-flow-step:last-child { border-bottom: none; }
+  }
+</style>
+</head>
+<body>
+<div class="op-root">
+
+  <p class="op-eyebrow">Pitch draft &mdash; April 2026</p>
+  <h1 class="op-headline">Reconnecting voters<br>to the <em>party machine</em><br>they don't know they have.</h1>
+  <p class="op-subhead">A civic transparency and local engagement platform that makes Democratic Party structure legible, participatory, and useful — starting in Montgomery County, Ohio.</p>
+
+  <hr class="op-divider">
+
+  <p class="op-section-label">The problem</p>
+  <div class="op-grid">
+    <div class="op-card">
+      <p class="op-card-label">Structural opacity</p>
+      <p class="op-card-title">Most Democratic voters don't know their precinct captain exists.</p>
+      <p class="op-card-body">The party's most local layer — the elected precinct representative — is functionally invisible. Captains are often appointed rather than elected, uncontested, and unreachable. The machinery meant to represent voters represents itself instead.</p>
+    </div>
+    <div class="op-card">
+      <p class="op-card-label">Participation friction</p>
+      <p class="op-card-title">Civic life has become too laborious to compete with daily survival.</p>
+      <p class="op-card-body">Two-hour council meetings, opaque agendas, and fragmented information across platforms means the cognitive cost of staying engaged now exceeds what most working people can sustain. Disengagement is a rational response to a broken interface.</p>
+    </div>
+  </div>
+
+  <p class="op-section-label">The context: Montgomery County, Ohio</p>
+  <div class="op-grid-3">
+    <div class="op-stat">
+      <span class="op-stat-num">530K</span>
+      <span class="op-stat-label">county residents across Dayton metro</span>
+    </div>
+    <div class="op-stat">
+      <span class="op-stat-num">100+</span>
+      <span class="op-stat-label">precincts across Dayton, Kettering, Centerville &amp; townships</span>
+    </div>
+    <div class="op-stat">
+      <span class="op-stat-num">1</span>
+      <span class="op-stat-label">active local Democratic club as beachhead partner</span>
+    </div>
+  </div>
+
+  <p class="op-section-label">The solution</p>
+  <div class="op-accent-card">
+    <p class="op-card-label">Core product</p>
+    <p class="op-card-title">A precinct-level civic map with LLM-summarized official content and a direct participation pathway.</p>
+    <p class="op-card-body">Citizens select their address and see: who their precinct captain is, when they were last elected vs. appointed, what their party has actually voted on, and what their city council or school board covered at its last meeting — summarized from official agendas and minutes, not curated commentary. A single clear action follows each summary: contact your rep, attend the next meeting, sign up to run.</p>
+  </div>
+
+  <p class="op-section-label">How it works</p>
+  <div class="op-flow">
+    <div class="op-flow-step">
+      <p class="op-flow-num">01</p>
+      <p class="op-flow-text">Citizen enters address. Map resolves their precinct, ward, school district, and city council seat.</p>
+    </div>
+    <div class="op-flow-step">
+      <p class="op-flow-num">02</p>
+      <p class="op-flow-text">Official documents — agendas, minutes, blotters — are ingested and summarized by LLM into plain-language digests.</p>
+    </div>
+    <div class="op-flow-step">
+      <p class="op-flow-num">03</p>
+      <p class="op-flow-text">Each digest surfaces one action: reach your rep, attend, respond to a pulse survey, or share.</p>
+    </div>
+    <div class="op-flow-step">
+      <p class="op-flow-num">04</p>
+      <p class="op-flow-text">Participation data aggregates for the party and small governments as anonymous sentiment intelligence.</p>
+    </div>
+  </div>
+
+  <p class="op-section-label">Fund V thesis alignment</p>
+  <div class="op-pill-row">
+    <span class="op-pill op-pill-blue">Civic tech</span>
+    <span class="op-pill op-pill-blue">Constituent communications</span>
+    <span class="op-pill op-pill-blue">Civics education</span>
+    <span class="op-pill op-pill-blue">Citizen-centered relationship infrastructure</span>
+    <span class="op-pill">AI-native workflows</span>
+    <span class="op-pill">Community &amp; social health</span>
+  </div>
+
+  <p class="op-section-label">Revenue model (hypotheses)</p>
+  <div class="op-grid">
+    <div class="op-card">
+      <p class="op-card-label">Primary: party &amp; club subscriptions</p>
+      <p class="op-card-body">County parties, Democratic clubs, and state party chapters pay a modest SaaS subscription for a constituent engagement dashboard — participation rates, precinct health scores, and meeting digest delivery to members. SDDC as founding customer.</p>
+    </div>
+    <div class="op-card">
+      <p class="op-card-label">Secondary: small government sentiment</p>
+      <p class="op-card-body">City councils, school boards, and township trustees pay for continuous voice-of-constituent surveys tied to specific agenda items — replacing public comment theater with structured, anonymous input before and after each meeting.</p>
+    </div>
+  </div>
+
+  <div class="op-footer-row">
+    <div class="op-ask-card">
+      <p class="op-ask-label">The ask</p>
+      <p class="op-ask-title">Pre-seed experiment,<br>one county, one cycle.</p>
+      <p class="op-ask-body">Funding to build and validate the Montgomery County MVP: precinct map, document ingestion pipeline, LLM summarization layer, and SDDC-facing dashboard. Measurable outcome: demonstrable increase in precinct captain contact rates and club membership within one political cycle.</p>
+    </div>
+    <div class="op-contact-card">
+      <div>
+        <p class="op-contact-label">Beachhead partner</p>
+        <p class="op-contact-name">South Dayton Democratic Club (SDDC)</p>
+        <p class="op-contact-detail">Montgomery County, Ohio<br>Active club with membership growth mandate and direct access to county party precinct structure.</p>
+      </div>
+      <span class="op-geo-tag">Montgomery County, OH &mdash; pilot geography</span>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

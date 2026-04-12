@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Precinct Map — MCDEM</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* ── MAP PAGE ─────────────────────────────────────────
+       Full-viewport split: narrow sidebar | map canvas
+    ─────────────────────────────────────────────────────── */
+    body { overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
+    .nav-spacer { flex-shrink: 0; }
+
+    .map-layout {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    /* ── Sidebar ── */
+    .map-sidebar {
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid var(--border);
+      background: var(--warm-white);
+      overflow: hidden;
+    }
+    .map-sidebar-header {
+      padding: 20px 20px 0;
+      flex-shrink: 0;
+    }
+    .map-sidebar-header h2 {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--charcoal);
+      margin-bottom: 12px;
+      letter-spacing: -0.01em;
+    }
+    .map-search {
+      position: relative;
+      margin-bottom: 12px;
+    }
+    .map-search input {
+      padding-left: 32px;
+      border-radius: 20px;
+      background: var(--cream);
+      border-color: transparent;
+    }
+    .map-search input:focus { background: var(--warm-white); border-color: var(--sky-mid); }
+    .map-search-icon {
+      position: absolute;
+      left: 12px; top: 50%;
+      transform: translateY(-50%);
+      font-size: 13px; color: var(--slate-mid);
+    }
+
+    /* Legend strip */
+    .map-legend {
+      display: flex;
+      gap: 16px;
+      padding: 0 20px 14px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--slate-mid); }
+    .legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+    /* Precinct list */
+    .pct-list { flex: 1; overflow-y: auto; }
+    .pct-item {
+      padding: 13px 20px;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      transition: background .1s;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .pct-item:hover  { background: var(--cream); }
+    .pct-item.active { background: var(--cream); border-left: 2px solid var(--charcoal); padding-left: 18px; }
+    .pct-status-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .pct-body { flex: 1; min-width: 0; }
+    .pct-id   { font-size: 10px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; color: var(--slate-mid); }
+    .pct-name { font-size: 14px; color: var(--charcoal); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pct-captain { font-size: 12px; color: var(--slate-mid); }
+    .pct-vacant-label { font-size: 11px; color: #b83232; font-style: italic; }
+
+    /* Detail drawer at bottom of sidebar */
+    .pct-detail {
+      border-top: 1px solid var(--border);
+      background: var(--cream);
+      padding: 20px;
+      flex-shrink: 0;
+      display: none;
+    }
+    .pct-detail.open { display: block; }
+    .pct-detail h3 {
+      font-family: var(--font-display);
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--charcoal);
+      margin-bottom: 12px;
+    }
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      padding: 6px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .detail-row:last-of-type { border: none; }
+    .detail-key { color: var(--slate-mid); font-weight: 500; }
+    .detail-val { color: var(--charcoal); text-align: right; }
+    .detail-actions { display: flex; gap: 8px; margin-top: 14px; }
+
+    /* Map canvas */
+    .map-canvas {
+      position: relative;
+      background: #e8f3f9;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+    }
+    .map-placeholder-inner {
+      text-align: center;
+      max-width: 500px;
+      padding: 40px;
+    }
+    .map-placeholder-inner h2 {
+      font-family: var(--font-display);
+      font-size: 26px;
+      font-weight: 600;
+      color: var(--sky-dark);
+      margin-bottom: 12px;
+    }
+    .map-placeholder-inner p { font-size: 14px; color: var(--sky-deep); line-height: 1.7; margin-bottom: 20px; }
+    .map-code {
+      background: rgba(255,255,255,0.7);
+      border: 1px solid rgba(46,106,138,0.15);
+      border-radius: var(--radius-md);
+      padding: 14px 18px;
+      font-family: monospace;
+      font-size: 12px;
+      color: var(--sky-dark);
+      text-align: left;
+      line-height: 1.8;
+    }
+    .map-controls {
+      position: absolute;
+      top: 20px; right: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .map-ctrl-btn {
+      width: 36px; height: 36px;
+      background: var(--warm-white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      font-size: 18px; color: var(--slate);
+      transition: background .1s, border-color .1s;
+    }
+    .map-ctrl-btn:hover { background: var(--cream); border-color: var(--border-dark); }
+
+    @media (max-width: 768px) {
+      body { overflow: auto; height: auto; }
+      .map-layout { grid-template-columns: 1fr; grid-template-rows: 260px 1fr; overflow: visible; }
+      .map-canvas  { grid-row: 1; }
+      .map-sidebar { grid-row: 2; overflow: visible; max-height: 60vh; }
+      .pct-list    { max-height: 300px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="site-nav" id="site-nav"></nav>
+<div class="nav-spacer"></div>
+
+<div class="map-layout">
+
+  <!-- Sidebar -->
+  <aside class="map-sidebar">
+    <div class="map-sidebar-header">
+      <h2>Precinct Map</h2>
+      <div class="map-search">
+        <span class="map-search-icon">&#9906;</span>
+        <input type="text" id="pct-search" placeholder="Search precinct, ward, or captain&hellip;" oninput="filterPcts()">
+      </div>
+    </div>
+
+    <div class="map-legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#4a90c4"></div>Captain assigned</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#b83232"></div>Vacant</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#e6a817"></div>Uncontacted</div>
+    </div>
+
+    <div class="pct-list" id="pct-list"></div>
+
+    <!-- Detail drawer -->
+    <div class="pct-detail" id="pct-detail">
+      <h3 id="d-name"></h3>
+      <div class="detail-row"><span class="detail-key">Ward</span><span class="detail-val" id="d-ward"></span></div>
+      <div class="detail-row"><span class="detail-key">Captain</span><span class="detail-val" id="d-captain"></span></div>
+      <div class="detail-row"><span class="detail-key">Phone</span><span class="detail-val" id="d-phone"></span></div>
+      <div class="detail-row"><span class="detail-key">Registered voters</span><span class="detail-val" id="d-voters"></span></div>
+      <div class="detail-actions">
+        <a href="captains.html" class="btn btn-ghost btn-sm">Full directory &rarr;</a>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Map canvas -->
+  <div class="map-canvas">
+    <!-- TODO: Replace with Leaflet.js + KML in dedicated session -->
+    <div class="map-placeholder-inner">
+      <h2>Interactive map</h2>
+      <p>KML geodata integration is scoped for a separate session. This panel will render a Leaflet.js choropleth of Montgomery County precinct boundaries.</p>
+      <div class="map-code">
+        // Integration points for Claude Code session:<br>
+        // 1. Load Leaflet.js + leaflet-omnivore<br>
+        // 2. Fetch /data/montgomery-precincts.kml<br>
+        // 3. Style fill by captain status<br>
+        // 4. onClick &rarr; selectPrecinct(id)<br>
+        // 5. Sync sidebar &#8596; map selection
+      </div>
+    </div>
+
+    <div class="map-controls">
+      <button class="map-ctrl-btn" title="Zoom in">+</button>
+      <button class="map-ctrl-btn" title="Zoom out">&minus;</button>
+      <button class="map-ctrl-btn" title="My location">&#9737;</button>
+    </div>
+  </div>
+
+</div>
+
+<script src="shared.js"></script>
+<script>
+  renderNav('map');
+  injectCountyModal();
+
+  const PCTS = [
+    { id:'1A', name:'Dayton 1-A', ward:'Ward 1', captain:'Maria Alvarez',    phone:'937-555-0101', voters:412, vacant:false },
+    { id:'1B', name:'Dayton 1-B', ward:'Ward 1', captain:'James Osei',       phone:'937-555-0102', voters:388, vacant:false },
+    { id:'2A', name:'Dayton 2-A', ward:'Ward 2', captain:'',                 phone:'',             voters:501, vacant:true  },
+    { id:'2B', name:'Dayton 2-B', ward:'Ward 2', captain:'Patricia Williams',phone:'937-555-0104', voters:463, vacant:false },
+    { id:'3A', name:'Trotwood 3-A',ward:'Ward 3',captain:'',                 phone:'',             voters:334, vacant:true  },
+    { id:'3B', name:'Trotwood 3-B',ward:'Ward 3',captain:'Samuel Diaz',      phone:'937-555-0106', voters:290, vacant:false },
+    { id:'4A', name:'Kettering 4-A',ward:'Ward 4',captain:'Linda Park',      phone:'937-555-0108', voters:528, vacant:false },
+    { id:'5A', name:'Huber Hts 5-A',ward:'Ward 5',captain:'',               phone:'',             voters:395, vacant:true  },
+    { id:'5B', name:'Huber Hts 5-B',ward:'Ward 5',captain:'Angela Moore',   phone:'937-555-0111', voters:441, vacant:false },
+  ];
+
+  let activePct = null;
+
+  function dotColor(p) { return p.vacant ? '#b83232' : '#4a90c4'; }
+
+  function renderList(list) {
+    document.getElementById('pct-list').innerHTML = list.map(p => `
+      <div class="pct-item ${p.id===activePct?'active':''}" onclick="selectPct('${p.id}')">
+        <div class="pct-status-dot" style="background:${dotColor(p)}"></div>
+        <div class="pct-body">
+          <div class="pct-id">Precinct ${p.id} &middot; ${p.ward}</div>
+          <div class="pct-name">${p.name}</div>
+          ${p.vacant
+            ? '<div class="pct-vacant-label">Vacant — captain needed</div>'
+            : `<div class="pct-captain">${p.captain}</div>`}
+        </div>
+      </div>
+    `).join('') || '<div style="padding:20px;font-size:13px;color:var(--slate-mid)">No results.</div>';
+  }
+
+  function selectPct(id) {
+    activePct = id;
+    const p = PCTS.find(x=>x.id===id);
+    renderList(getFiltered());
+    document.getElementById('d-name').textContent    = p.name + ' — Precinct ' + p.id;
+    document.getElementById('d-ward').textContent    = p.ward;
+    document.getElementById('d-captain').textContent = p.vacant ? 'Vacant' : p.captain;
+    document.getElementById('d-phone').textContent   = p.phone || '—';
+    document.getElementById('d-voters').textContent  = p.voters.toLocaleString();
+    document.getElementById('pct-detail').classList.add('open');
+  }
+
+  function getFiltered() {
+    const q = document.getElementById('pct-search').value.toLowerCase();
+    return PCTS.filter(p =>
+      !q || p.name.toLowerCase().includes(q) || p.id.toLowerCase().includes(q) ||
+      p.ward.toLowerCase().includes(q) || p.captain.toLowerCase().includes(q)
+    );
+  }
+  function filterPcts() { renderList(getFiltered()); }
+
+  renderList(PCTS);
+</script>
+</body>
+</html>

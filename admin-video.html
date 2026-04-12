@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Recording — Admin</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* ── ADMIN FORM v2 ───────────────────────────────────── */
+    body { background: var(--cream); }
+
+    .admin-layout {
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      min-height: calc(100vh - var(--nav-h));
+    }
+
+    /* Sidebar */
+    .admin-side {
+      background: var(--charcoal);
+      padding: 28px 0;
+      position: sticky;
+      top: var(--nav-h);
+      height: calc(100vh - var(--nav-h));
+      overflow-y: auto;
+    }
+    .admin-side-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.3);
+      padding: 0 20px 8px;
+    }
+    .admin-side-link {
+      display: block;
+      padding: 10px 20px;
+      font-size: 13px;
+      color: rgba(255,255,255,0.55);
+      transition: color .1s, background .1s;
+      border-left: 2px solid transparent;
+    }
+    .admin-side-link:hover { color: rgba(255,255,255,0.9); background: rgba(255,255,255,0.05); }
+    .admin-side-link.on    { color: #fff; border-color: var(--sky-mid); background: rgba(255,255,255,0.07); }
+    .admin-side-divider { height: 1px; background: rgba(255,255,255,0.07); margin: 16px 20px; }
+
+    /* Main content */
+    .admin-main {
+      padding: 40px 48px 80px;
+      max-width: 840px;
+    }
+    .form-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 40px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+    }
+    .form-head h1 {
+      font-family: var(--font-display);
+      font-size: 28px;
+      font-weight: 600;
+      color: var(--charcoal);
+      letter-spacing: -0.01em;
+    }
+    .form-head p { font-size: 13px; color: var(--slate-mid); margin-top: 4px; }
+    .form-head-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+    /* Sections */
+    .form-sec {
+      margin-bottom: 40px;
+      padding-bottom: 40px;
+      border-bottom: 1px solid var(--border);
+    }
+    .form-sec:last-of-type { border: none; }
+    .form-sec-title {
+      font-family: var(--font-display);
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--charcoal);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .form-sec-title::after { content:''; flex:1; height:1px; background:var(--border); }
+
+    /* Grid */
+    .fg { display: grid; gap: 16px; }
+    .fg-2 { grid-template-columns: 1fr 1fr; }
+    .fg-3 { grid-template-columns: 1fr 1fr 1fr; }
+    .span-2 { grid-column: 1 / -1; }
+
+    /* Tag input */
+    .tag-wrap {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 7px 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      background: var(--warm-white);
+      min-height: 42px;
+      cursor: text;
+      transition: border-color .15s;
+    }
+    .tag-wrap:focus-within { border-color: var(--sky-mid); }
+    .tag-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      font-weight: 500;
+      background: var(--sky);
+      color: var(--sky-dark);
+      border-radius: 20px;
+      padding: 3px 10px;
+    }
+    .tag-chip button { background:none; border:none; cursor:pointer; color:var(--sky-dark); font-size:14px; padding:0; line-height:1; }
+    .tag-wrap input {
+      border:none; outline:none; padding:3px 4px;
+      font-family:var(--font-sans); font-size:13px;
+      color:var(--charcoal); background:transparent;
+      flex:1; min-width:100px; border-radius:0;
+    }
+
+    /* Repeatable */
+    .rep-list { display:flex; flex-direction:column; gap:12px; }
+    .rep-item {
+      background: var(--warm-white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 18px;
+      position: relative;
+    }
+    .rep-hdr { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+    .rep-hdr-label { font-size:11px; font-weight:600; letter-spacing:.07em; text-transform:uppercase; color:var(--slate-mid); }
+    .rep-rm { background:none; border:none; cursor:pointer; font-size:18px; color:var(--slate-mid); line-height:1; }
+    .rep-rm:hover { color:#b83232; }
+    .add-btn {
+      width:100%;
+      padding:10px;
+      background:transparent;
+      border:1px dashed var(--border-dark);
+      border-radius:var(--radius-md);
+      font-family:var(--font-sans);
+      font-size:13px;
+      font-weight:500;
+      color:var(--slate-mid);
+      cursor:pointer;
+      text-align:center;
+      transition:border-color .15s, color .15s, background .15s;
+      margin-top:10px;
+    }
+    .add-btn:hover { border-color:var(--charcoal); color:var(--charcoal); background:var(--cream); }
+
+    /* YT preview */
+    .yt-prev { margin-top:10px; aspect-ratio:16/9; background:#111; border-radius:var(--radius-md); overflow:hidden; display:none; }
+    .yt-prev.on { display:block; }
+    .yt-prev iframe { width:100%; height:100%; border:none; display:block; }
+
+    /* Sticky action bar */
+    .action-bar {
+      position:fixed; bottom:0; left:200px; right:0;
+      background:rgba(250,249,247,0.96);
+      backdrop-filter:blur(10px);
+      border-top:1px solid var(--border);
+      padding:14px 48px;
+      display:flex; gap:10px; align-items:center; justify-content:flex-end;
+      z-index:50;
+    }
+    .save-status { font-size:12px; color:var(--slate-mid); margin-right:auto; }
+
+    @media (max-width:768px) {
+      .admin-layout { grid-template-columns:1fr; }
+      .admin-side { display:none; }
+      .admin-main { padding:24px 20px 80px; }
+      .fg-2,.fg-3 { grid-template-columns:1fr; }
+      .action-bar { left:0; padding:12px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="site-nav" id="site-nav"></nav>
+<div class="nav-spacer"></div>
+
+<div class="admin-layout">
+
+  <!-- Sidebar -->
+  <aside class="admin-side">
+    <div class="admin-side-label">Content</div>
+    <a class="admin-side-link on" href="admin-video.html">Recordings</a>
+    <a class="admin-side-link" href="captains.html">Captains (read-only)</a>
+    <div class="admin-side-divider"></div>
+    <div class="admin-side-label">Site</div>
+    <a class="admin-side-link" href="index.html">View site &rarr;</a>
+  </aside>
+
+  <!-- Form -->
+  <div class="admin-main">
+
+    <div class="form-head">
+      <div>
+        <h1>Add recording</h1>
+        <p>All starred fields are required to publish. Save as draft to return later.</p>
+      </div>
+      <div class="form-head-actions">
+        <button class="btn btn-ghost btn-sm" onclick="history.back()">Cancel</button>
+        <button class="btn btn-dark btn-sm" onclick="saveEntry('publish')">Publish</button>
+      </div>
+    </div>
+
+    <!-- Identity -->
+    <div class="form-sec">
+      <div class="form-sec-title">Identity</div>
+      <div class="fg fg-2">
+        <div class="field span-2">
+          <label>Title *</label>
+          <input type="text" id="f-title" placeholder="e.g. January Executive Committee Meeting">
+        </div>
+        <div class="field">
+          <label>Date *</label>
+          <input type="date" id="f-date">
+        </div>
+        <div class="field">
+          <label>Meeting type *</label>
+          <select id="f-type">
+            <option value="">Select&hellip;</option>
+            <option>Executive Committee</option>
+            <option>Central Committee</option>
+            <option>Club Meeting</option>
+            <option>Candidate Forum</option>
+            <option>Special Session</option>
+            <option>Other</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Media -->
+    <div class="form-sec">
+      <div class="form-sec-title">Media</div>
+      <div class="field">
+        <label>YouTube URL *</label>
+        <input type="url" id="f-yt" placeholder="https://www.youtube.com/watch?v=..." oninput="previewYT(this.value)" style="font-family:monospace;font-size:13px">
+        <span class="field-hint">Paste the full YouTube URL. Unlisted videos are supported.</span>
+      </div>
+      <div class="yt-prev" id="yt-prev"><iframe id="yt-iframe" allowfullscreen></iframe></div>
+    </div>
+
+    <!-- Organization & geography -->
+    <div class="form-sec">
+      <div class="form-sec-title">Organization &amp; geography</div>
+      <div class="fg fg-2">
+        <div class="field">
+          <label>Organization *</label>
+          <select id="f-org">
+            <option value="">Select&hellip;</option>
+            <option>Mont. Co. Democratic Party</option>
+            <option>Young Democrats</option>
+            <option>Progressive Action Club</option>
+            <option>Dayton NAACP Political Action</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>County *</label>
+          <select id="f-county">
+            <option>Montgomery</option><option>Franklin</option><option>Hamilton</option><option>Summit</option><option>Lucas</option><option>Cuyahoga</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Wards covered</label>
+          <div class="tag-wrap" id="wards-wrap"><input type="text" placeholder="Type and press Enter&hellip;" onkeydown="addTag(event,'wards-wrap','wards-data')"></div>
+          <input type="hidden" id="wards-data" value="[]">
+        </div>
+        <div class="field">
+          <label>Precincts covered</label>
+          <div class="tag-wrap" id="prec-wrap"><input type="text" placeholder="e.g. 1A, 2B — press Enter&hellip;" onkeydown="addTag(event,'prec-wrap','prec-data')"></div>
+          <input type="hidden" id="prec-data" value="[]">
+        </div>
+        <div class="field span-2">
+          <label>Recording location / venue</label>
+          <input type="text" id="f-venue" placeholder="e.g. Dayton Metro Library, Wright Brothers Room">
+        </div>
+        <div class="field span-2">
+          <label>Intended audience</label>
+          <input type="text" id="f-audience" placeholder="e.g. Executive Committee members, elected delegates">
+        </div>
+      </div>
+    </div>
+
+    <!-- Topic index -->
+    <div class="form-sec">
+      <div class="form-sec-title">Topic &amp; content index</div>
+      <div class="fg fg-2">
+        <div class="field">
+          <label>Topics / issues *</label>
+          <div class="tag-wrap" id="topics-wrap"><input type="text" placeholder="Type topic and press Enter&hellip;" onkeydown="addTag(event,'topics-wrap','topics-data')"></div>
+          <input type="hidden" id="topics-data" value="[]">
+          <span class="field-hint">e.g. Precinct Operations, Endorsements, Budget &amp; Finance</span>
+        </div>
+        <div class="field">
+          <label>Referenced legislation</label>
+          <div class="tag-wrap" id="legis-wrap"><input type="text" placeholder="e.g. HB 158 — press Enter&hellip;" onkeydown="addTag(event,'legis-wrap','legis-data')"></div>
+          <input type="hidden" id="legis-data" value="[]">
+          <span class="field-hint">Bill number + short name.</span>
+        </div>
+        <div class="field span-2">
+          <label>Candidates mentioned</label>
+          <div class="tag-wrap" id="cand-wrap"><input type="text" placeholder="e.g. Jane Smith — City Commission — press Enter&hellip;" onkeydown="addTag(event,'cand-wrap','cand-data')"></div>
+          <input type="hidden" id="cand-data" value="[]">
+        </div>
+      </div>
+    </div>
+
+    <!-- Speakers -->
+    <div class="form-sec">
+      <div class="form-sec-title">Speakers</div>
+      <div class="rep-list" id="spk-list"></div>
+      <button class="add-btn" onclick="addSpeaker()">+ Add speaker</button>
+    </div>
+
+    <!-- Editorial -->
+    <div class="form-sec">
+      <div class="form-sec-title">Editorial commentary</div>
+      <div class="fg">
+        <div class="field">
+          <label>Background *</label>
+          <textarea id="f-bg" rows="4" placeholder="What is this meeting? What brought it about?"></textarea>
+        </div>
+        <div class="field">
+          <label>Why this matters *</label>
+          <textarea id="f-why" rows="4" placeholder="What decisions or outcomes affect members, precincts, or upcoming elections?"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Agenda + transcript -->
+    <div class="form-sec">
+      <div class="form-sec-title">Agenda items &amp; transcript</div>
+      <p style="font-size:13px;color:var(--slate-mid);margin-bottom:16px">One block per agenda item. Items appear in order on the public page.</p>
+      <div class="rep-list" id="agenda-list"></div>
+      <button class="add-btn" onclick="addAgenda()">+ Add agenda item</button>
+    </div>
+
+    <!-- Timestamps -->
+    <div class="form-sec">
+      <div class="form-sec-title">Key timestamps</div>
+      <div class="rep-list" id="ts-list"></div>
+      <button class="add-btn" onclick="addTS()">+ Add timestamp</button>
+    </div>
+
+    <div style="height:60px"></div>
+  </div><!-- /admin-main -->
+
+</div><!-- /admin-layout -->
+
+<div class="action-bar">
+  <span class="save-status" id="save-status"></span>
+  <button class="btn btn-ghost btn-sm" onclick="history.back()">Cancel</button>
+  <button class="btn btn-ghost btn-sm" onclick="saveEntry('draft')">Save draft</button>
+  <button class="btn btn-dark btn-sm" onclick="saveEntry('publish')">Publish entry</button>
+</div>
+
+<script src="shared.js"></script>
+<script>
+  renderNav(null);
+  injectCountyModal();
+
+  /* YT preview */
+  function extractYTId(url) { const m=url.match(/(?:v=|youtu\.be\/|embed\/)([a-zA-Z0-9_-]{11})/); return m?m[1]:null; }
+  function previewYT(url) {
+    const id=extractYTId(url);
+    const el=document.getElementById('yt-prev');
+    if(id){ document.getElementById('yt-iframe').src='https://www.youtube.com/embed/'+id; el.classList.add('on'); }
+    else el.classList.remove('on');
+  }
+
+  /* Tag input */
+  function addTag(e,wId,dId) {
+    if(e.key!=='Enter'&&e.key!==',') return;
+    e.preventDefault();
+    const inp=e.target, val=inp.value.trim().replace(/,$/,'');
+    if(!val) return;
+    const wrap=document.getElementById(wId), hid=document.getElementById(dId);
+    const cur=JSON.parse(hid.value);
+    if(cur.includes(val)){inp.value='';return;}
+    cur.push(val); hid.value=JSON.stringify(cur);
+    const chip=document.createElement('span'); chip.className='tag-chip';
+    chip.innerHTML=val+'<button type="button" onclick="removeTag(this,\''+wId+'\',\''+dId+'\',\''+val+'\')">&#215;</button>';
+    wrap.insertBefore(chip,inp); inp.value='';
+  }
+  function removeTag(btn,wId,dId,val) {
+    btn.parentElement.remove();
+    const hid=document.getElementById(dId);
+    hid.value=JSON.stringify(JSON.parse(hid.value).filter(v=>v!==val));
+  }
+
+  /* Repeatable speakers */
+  let spkN=0;
+  function addSpeaker() {
+    spkN++;
+    const id='spk-'+spkN, el=document.createElement('div');
+    el.className='rep-item'; el.id=id;
+    el.innerHTML=`<div class="rep-hdr"><span class="rep-hdr-label">Speaker ${spkN}</span><button class="rep-rm" onclick="document.getElementById('${id}').remove()">&#215;</button></div><div class="fg fg-2"><div class="field"><label>Full name</label><input type="text" placeholder="e.g. Chair Rosa Alvarez"></div><div class="field"><label>Role / context</label><input type="text" placeholder="e.g. Presiding Officer"></div></div>`;
+    document.getElementById('spk-list').appendChild(el);
+  }
+
+  /* Repeatable agenda */
+  let agN=0;
+  function addAgenda() {
+    agN++;
+    const id='ag-'+agN, el=document.createElement('div');
+    el.className='rep-item'; el.id=id;
+    el.innerHTML=`<div class="rep-hdr"><span class="rep-hdr-label">Agenda item ${agN}</span><button class="rep-rm" onclick="document.getElementById('${id}').remove()">&#215;</button></div><div class="fg"><div class="field"><label>Agenda item label</label><input type="text" placeholder="e.g. Precinct captain vacancy review"></div><div class="field"><label>Transcript excerpt</label><textarea rows="5" placeholder="Paste the relevant portion of the transcript here. Edit for clarity as needed."></textarea></div></div>`;
+    document.getElementById('agenda-list').appendChild(el);
+  }
+
+  /* Repeatable timestamps */
+  let tsN=0;
+  function addTS() {
+    tsN++;
+    const id='ts-'+tsN, el=document.createElement('div');
+    el.className='rep-item'; el.id=id;
+    el.innerHTML=`<div class="rep-hdr"><span class="rep-hdr-label">Timestamp ${tsN}</span><button class="rep-rm" onclick="document.getElementById('${id}').remove()">&#215;</button></div><div class="fg fg-2"><div class="field"><label>Time (MM:SS)</label><input type="text" placeholder="e.g. 11:07" style="max-width:120px"></div><div class="field"><label>Label</label><input type="text" placeholder="e.g. Precinct captain vacancy review"></div></div>`;
+    document.getElementById('ts-list').appendChild(el);
+  }
+
+  /* Save */
+  function saveEntry(status) {
+    /* TODO: Replace with real API / CMS write */
+    console.log('Save:', status, {
+      title: document.getElementById('f-title').value,
+      date:  document.getElementById('f-date').value,
+      type:  document.getElementById('f-type').value,
+      ytUrl: document.getElementById('f-yt').value,
+      org:   document.getElementById('f-org').value,
+      topics: JSON.parse(document.getElementById('topics-data').value),
+    });
+    const s=document.getElementById('save-status');
+    s.textContent = status==='draft' ? 'Saved as draft.' : 'Entry published.';
+    setTimeout(()=>{ s.textContent=''; }, 3000);
+  }
+
+  /* Init */
+  addSpeaker(); addAgenda(); addTS();
+</script>
+</body>
+</html>

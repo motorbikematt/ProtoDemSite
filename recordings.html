@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meeting Minutes — South Dayton Democratic Club</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .dir-wrap {
+      position: sticky; top: var(--nav-h); z-index: 90;
+      background: var(--warm-white); border-bottom: 1px solid var(--border);
+    }
+    .dir-filters {
+      max-width: var(--max-w); margin: 0 auto; padding: 10px 32px 0;
+      display: flex; gap: 6px; align-items: center; flex-wrap: wrap;
+    }
+    .dir-filters-label { font-size: 11px; font-weight: 600; color: var(--slate-mid); }
+    .dir-filters select, .dir-filters input[type="text"] {
+      font-family: var(--font-sans); font-size: 12px; padding: 5px 12px;
+      border-radius: 20px; border: 1px solid var(--border);
+      background: var(--cream); color: var(--slate); outline: none; width: auto;
+    }
+    .dir-filters select:focus, .dir-filters input:focus { border-color: var(--sky-mid); background: var(--warm-white); }
+    .dir-filters input { min-width: 200px; }
+    .dir-strip {
+      max-width: var(--max-w); margin: 0 auto; padding: 0 32px;
+      display: flex; overflow-x: auto; scrollbar-width: none;
+    }
+    .dir-strip::-webkit-scrollbar { display: none; }
+    .dir-card {
+      flex-shrink: 0; width: 180px; padding: 10px 14px;
+      border-right: 1px solid var(--border); border-bottom: 3px solid transparent;
+      margin-bottom: -1px; cursor: pointer; transition: background .12s;
+    }
+    .dir-card:first-child { border-left: 1px solid var(--border); }
+    .dir-card:hover  { background: var(--cream); }
+    .dir-card.active { background: var(--cream); border-bottom-color: var(--charcoal); }
+    .dc-date { font-size: 12px; font-weight: 600; color: var(--charcoal); margin-bottom: 3px; }
+    .dc-tag  { font-size: 10px; color: var(--slate-mid); display: flex; align-items: center; gap: 5px; }
+    .dc-dot  { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+    .dc-dot-v { background: var(--sky-deep); }
+    .dc-dot-m { background: var(--border-dark); }
+
+    .page-body {
+      max-width: var(--max-w); margin: 0 auto;
+      padding: 48px 32px 80px;
+      display: grid; grid-template-columns: 1fr 280px;
+      gap: 56px; align-items: start;
+    }
+
+    /* Article */
+    .article-kicker { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--sky-deep); margin-bottom: 10px; }
+    .article-title { font-family: var(--font-display); font-size: clamp(22px,3vw,34px); font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; color: var(--charcoal); margin-bottom: 14px; }
+    .article-byline { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; font-size: 13px; color: var(--slate-mid); padding-bottom: 18px; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
+    .byline-dot { width: 3px; height: 3px; border-radius: 50%; background: var(--border-dark); }
+    .meta-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 28px; }
+    .chip { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; padding: 4px 10px; border-radius: 20px; border: 1px solid var(--border); color: var(--slate); background: var(--warm-white); }
+    .chip-lbl { font-weight: 600; color: var(--slate-mid); }
+    .chip-sky { background: var(--sky); color: var(--sky-dark); border-color: transparent; }
+    .chip-dark { background: var(--charcoal); color: #fff; border-color: transparent; }
+
+    /* Video */
+    .video-hero { width: 100%; aspect-ratio: 16/9; background: #0d0d0d; border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 28px; }
+    .video-hero iframe, .video-hero #yt-player { width: 100%; height: 100%; border: none; display: block; }
+    .no-video-banner { display: flex; align-items: center; gap: 14px; padding: 16px 20px; margin-bottom: 28px; background: var(--cream); border: 1px solid var(--border); border-radius: var(--radius-lg); }
+    .no-video-icon { font-size: 20px; opacity: .4; flex-shrink: 0; }
+    .no-video-text { font-size: 13px; color: var(--slate-mid); line-height: 1.6; }
+    .no-video-text strong { color: var(--slate); }
+
+    /* Editorial */
+    .ed-block { margin-bottom: 28px; }
+    .ed-block h3 { font-family: var(--font-display); font-size: 13px; font-weight: 600; font-style: italic; color: var(--slate-mid); margin-bottom: 10px; }
+    .ed-block p { font-size: 15px; line-height: 1.8; color: var(--slate); }
+
+    /* Speakers */
+    .speakers-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 28px; }
+
+    /* Timestamps */
+    .ts-list { display: flex; flex-direction: column; margin-bottom: 28px; }
+    .ts-row { display: flex; gap: 16px; align-items: baseline; padding: 8px 8px; border-bottom: 1px solid var(--border); cursor: pointer; border-radius: var(--radius-sm); transition: background .1s; margin: 0 -8px; }
+    .ts-row:last-child { border-bottom: none; }
+    .ts-row:hover { background: var(--cream); }
+    .ts-time { font-size: 12px; font-weight: 700; color: var(--sky-deep); min-width: 40px; font-variant-numeric: tabular-nums; }
+    .ts-label { font-size: 13px; color: var(--slate); line-height: 1.4; }
+
+    /* Synced transcript */
+    .tx-section { margin-bottom: 32px; }
+    .tx-section h3 { font-family: var(--font-display); font-size: 13px; font-weight: 600; font-style: italic; color: var(--slate-mid); margin-bottom: 14px; }
+    .tx-panel { border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; background: var(--warm-white); }
+    .tx-panel-hdr { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid var(--border); background: var(--cream); }
+    .tx-panel-hdr-label { font-size: 11px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; color: var(--slate-mid); }
+    .tx-sync-badge { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; color: var(--sky-deep); }
+    .sync-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--sky-mid); }
+    .sync-dot.live { animation: pulse-dot 1.4s ease-in-out infinite; }
+    @keyframes pulse-dot { 0%,100%{opacity:1;transform:scale(1);}50%{opacity:.35;transform:scale(.65);} }
+    .tx-body { height: 280px; overflow-y: auto; padding: 12px 8px; scroll-behavior: smooth; }
+    .tx-body::-webkit-scrollbar { width: 3px; }
+    .tx-body::-webkit-scrollbar-thumb { background: var(--border-dark); border-radius: 2px; }
+    .tx-seg { display: flex; gap: 14px; padding: 7px 10px; border-radius: var(--radius-sm); cursor: pointer; transition: background .1s; margin-bottom: 1px; align-items: baseline; }
+    .tx-seg:hover { background: var(--cream); }
+    .tx-seg.active { background: var(--sky); }
+    .tx-seg.active .tx-t { color: var(--sky-dark); }
+    .tx-seg.active .tx-w { color: var(--sky-dark); font-weight: 500; }
+    .tx-seg.past .tx-t { color: var(--border-dark); }
+    .tx-seg.past .tx-w { color: var(--slate-mid); }
+    .tx-t { font-size: 11px; font-weight: 700; color: var(--slate-mid); min-width: 36px; font-variant-numeric: tabular-nums; flex-shrink: 0; padding-top: 2px; transition: color .1s; }
+    .tx-w { font-size: 14px; line-height: 1.65; color: var(--slate); transition: color .1s; }
+    .tx-pending { padding: 24px; text-align: center; font-size: 13px; color: var(--slate-mid); line-height: 1.65; }
+
+    /* Minutes */
+    .minutes-section { margin-bottom: 32px; }
+    .minutes-section h3 { font-family: var(--font-display); font-size: 13px; font-weight: 600; font-style: italic; color: var(--slate-mid); margin-bottom: 14px; }
+    .minutes-panel { border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; background: var(--warm-white); }
+    .minutes-panel-hdr { display: flex; align-items: center; justify-content: space-between; padding: 12px 18px; border-bottom: 1px solid var(--border); background: var(--cream); }
+    .minutes-panel-hdr-label { font-size: 11px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; color: var(--slate-mid); }
+    .minutes-src-link { font-size: 11px; font-weight: 500; color: var(--sky-deep); display: flex; align-items: center; gap: 5px; padding: 3px 10px; border: 1px solid var(--sky); border-radius: 20px; transition: background .1s; }
+    .minutes-src-link:hover { background: var(--sky); color: var(--sky-dark); }
+    .minutes-body { padding: 20px 24px; }
+    .agenda-item { margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px solid var(--border); }
+    .agenda-item:last-child { border: none; margin-bottom: 0; padding-bottom: 0; }
+    .agenda-item-label { display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 600; color: var(--charcoal); margin-bottom: 8px; }
+    .agenda-item-label::before { content:''; width:3px; height:14px; background:var(--sky-mid); border-radius:2px; flex-shrink:0; }
+    .agenda-item-text { font-size: 14px; line-height: 1.85; color: var(--slate); font-family: var(--font-display); font-weight: 400; }
+    .motion-block { margin-top: 10px; padding: 10px 14px; background: var(--cream); border-left: 3px solid var(--charcoal); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; font-size: 13px; color: var(--charcoal); line-height: 1.6; }
+
+    /* Community hint */
+    .community-hint { margin-top: 28px; padding: 16px 20px; background: var(--cream); border-radius: var(--radius-lg); border: 1px solid var(--border); display: flex; align-items: center; gap: 14px; }
+    .community-hint-icon { font-size: 18px; opacity: .4; flex-shrink: 0; }
+    .community-hint p { font-size: 13px; color: var(--slate-mid); line-height: 1.65; }
+    .community-hint strong { color: var(--slate); }
+
+    /* Aside */
+    .article-aside { position: sticky; top: calc(var(--nav-h) + 110px); }
+    .aside-sec { margin-bottom: 28px; }
+    .aside-lbl { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--slate-mid); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+    .aside-lbl::after { content:''; flex:1; height:1px; background:var(--border); }
+    .sddc-about { background: var(--charcoal); border-radius: var(--radius-lg); padding: 18px 20px; margin-bottom: 28px; }
+    .sddc-about h4 { font-family: var(--font-display); font-size: 14px; font-weight: 600; color: #fff; margin-bottom: 8px; }
+    .sddc-about p { font-size: 12px; color: rgba(255,255,255,.5); line-height: 1.7; }
+    .sddc-about a { color: var(--sky-mid); }
+    .adj-card { border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; cursor: pointer; transition: border-color .15s; background: var(--warm-white); }
+    .adj-card:hover { border-color: var(--border-dark); }
+    .adj-card-body { padding: 12px 14px; }
+    .adj-org  { font-size: 9px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: var(--sky-deep); margin-bottom: 4px; }
+    .adj-date { font-family: var(--font-display); font-size: 14px; color: var(--charcoal); margin-bottom: 4px; }
+    .adj-topic { font-size: 11px; color: var(--slate-mid); }
+    .more-item { padding: 10px 0; border-bottom: 1px solid var(--border); cursor: pointer; transition: opacity .12s; }
+    .more-item:last-child { border: none; }
+    .more-item:hover { opacity: .65; }
+    .more-date  { font-size: 12px; font-weight: 600; color: var(--charcoal); margin-bottom: 2px; }
+    .more-topic { font-size: 11px; color: var(--slate-mid); margin-bottom: 2px; }
+    .more-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 500; color: var(--sky-deep); }
+
+    @media (max-width: 960px) {
+      .page-body { grid-template-columns: 1fr; gap: 32px; padding: 24px 20px 60px; }
+      .article-aside { position: static; }
+      .dir-filters { padding: 8px 16px 0; }
+      .dir-strip   { padding: 0 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="site-nav" id="site-nav"></nav>
+<div class="nav-spacer"></div>
+
+<div class="dir-wrap">
+  <div class="dir-filters">
+    <span class="dir-filters-label">Filter</span>
+    <select id="f-year" onchange="applyFilter()">
+      <option value="">All years</option>
+      <option value="2026">2026</option>
+      <option value="2025">2025</option>
+      <option value="2024">2024</option>
+    </select>
+    <select id="f-type" onchange="applyFilter()">
+      <option value="">All types</option>
+      <option value="video">With video</option>
+      <option value="minutes">Minutes only</option>
+    </select>
+    <input type="text" id="f-search" placeholder="Search topic, speaker, motion&hellip;" oninput="applyFilter()">
+  </div>
+  <div class="dir-strip" id="dir-strip"></div>
+</div>
+
+<div class="page-body">
+  <article id="article-main"></article>
+  <aside   id="article-aside" class="article-aside"></aside>
+</div>
+
+<footer class="site-footer" id="site-footer"></footer>
+
+<script src="https://www.youtube.com/iframe_api"></script>
+<script src="shared.js"></script>
+<script>
+renderNav('recordings');
+renderFooter();
+injectCountyModal();
+
+/* ══════════════════════════════════════════════════════
+   ALL 18 SDDC MEETINGS
+   Sources:
+   - Summaries: https://docs.google.com/document/d/15YT2oM6YmUp7wpQAHZYQee4UcikMN2KZ-U9IT5nwVT0
+   - Minutes index: https://daytondem.org/meeting-minutes/
+   - Videos: YouTube (5 meetings)
+   
+   hasVideo: true → YouTube IFrame API player + transcript panel
+   hasVideo: false → minutes-only mode
+   transcript: null → video present but transcript not yet fetched
+                      (populate via /api/transcript?v=ytId in Claude Code session)
+══════════════════════════════════════════════════════ */
+const MEETINGS = [
+
+  /* ── 2026 ──────────────────────────────────────────── */
+  {
+    id: 1,
+    date: 'March 31, 2026', shortDate: 'Mar 31, 2026', year: '2026',
+    hasVideo: true, ytId: 'D4JSl-Y3rbE', transcript: null,
+    gdocUrl: 'https://docs.google.com/document/d/1sFAjllfO_iHzSKG1jfu-8G1nl4PCAzeW-_Jx5PAfo9g/edit',
+    topics: ['Candidate Forum', 'Primary 2026', 'Redistricting', 'Education'],
+    speakers: ['Uriah Langmeyer','Zak Lutz','Carolyn Rice','Karl Keith','Faith Nixon','Ron Kincaid','Bryan Hambley','Allison Russo','Gavin Steele','Rose Lounsbury','Daquan Neal','Mike Stevens','Phil Crippen','Tom Herner','Jan Kinner','David Esrati','Tony Pombo','Manuel Foggie','Kristina Knickerbocker','Janice Beckett'],
+    summary: 'A major candidate forum for contested primary races, including Secretary of State, State Treasurer, and various Ohio House and US House districts. Candidates discussed fair redistricting, property tax relief, public education funding, and reproductive rights. Forum followed strict rules to promote candidates without audience debate.',
+    whyItMatters: 'The May 2026 primary will shape the Democratic ticket for a critical general election cycle. This forum gave members direct access to candidates across multiple offices, enabling informed endorsement decisions and volunteer prioritization.',
+    agendaItems: [
+      { label: 'Opening & forum rules', text: 'Uriah Langmeyer and Rose Lounsbury opened the forum and reviewed rules: equal time per candidate, no audience debate, questions from moderators only.' },
+      { label: 'Secretary of State candidates', text: 'Bryan Hambley and Allison Russo each presented platforms focused on election integrity, fair redistricting, and voter access. Q&A addressed mail-in ballot restrictions recently passed by the Ohio legislature.' },
+      { label: 'State Treasurer candidates', text: 'Karl Keith and Ron Kincaid presented. Discussion of state investment priorities, public fund transparency, and pension obligations.' },
+      { label: 'Ohio House & US House candidates', text: 'Candidates for multiple Ohio House and US House districts presented including Phil Crippen, Tom Herner, Jan Kinner, David Esrati, Tony Pombo, Manuel Foggie, Kristina Knickerbocker, and Janice Beckett. Topics: education funding, reproductive rights, housing.' },
+      { label: 'Closing & next meeting preview', text: 'Meeting closed with announcement that the next session will feature the president of University of Cincinnati\'s faculty union.', motion: null },
+    ],
+    timestamps: [],
+  },
+
+  {
+    id: 2,
+    date: 'February 24, 2026', shortDate: 'Feb 24, 2026', year: '2026',
+    hasVideo: false,
+    gdocUrl: 'https://docs.google.com/document/d/1mGt9mIAKm1XxzEsqgkQEG5BJPQObUES0fhoc9DqEsxI/edit',
+    topics: ['Immigration', 'Asylum & Detention', 'Candidate Introductions'],
+    speakers: ['Rose Lounsbury','Zak Lutz','David Larson','Gabriela Pickett','Miranda Hallet','Imam Ayman Soliman'],
+    summary: 'A panel on immigration discussed legal challenges such as detention, asylum seeking, the eroding trust in communities due to race-based enforcement, and the dehumanizing conditions in detention centers. Panelists called for political advocacy, commissary fund support, and community-led infrastructure to assist immigrants.',
+    whyItMatters: 'Federal immigration enforcement actions in the Dayton region are directly affecting community members. This session equipped club members with legal and advocacy frameworks to respond effectively and with solidarity.',
+    agendaItems: [
+      { label: 'Immigration panel introduction', text: 'Rose Lounsbury introduced panelists David Larson, Gabriela Pickett, Miranda Hallet, and Imam Ayman Soliman, each bringing legal, community, and religious perspectives on immigration enforcement in Ohio.' },
+      { label: 'Legal landscape: detention & asylum', text: 'Panelists described the legal process for detained individuals, barriers to asylum claims, and the due process erosions in recent enforcement actions. Community trust has deteriorated significantly due to race-based stops.' },
+      { label: 'Conditions in detention centers', text: 'Firsthand accounts and advocacy reports described dehumanizing conditions. Panelists called for commissary fund donations and letter-writing campaigns.' },
+      { label: 'Political advocacy pathways', text: 'Discussion of legislative contacts, sanctuary city policies, and community-led rapid response infrastructure. Members asked about know-your-rights training.' },
+      { label: 'Candidate introductions', text: 'Seven candidates introduced their campaigns ahead of the May 2026 primary. Treasurer reported general fund balance of $20,274.93.', motion: null },
+    ],
+  },
+
+  {
+    id: 3,
+    date: 'January 27, 2026', shortDate: 'Jan 27, 2026', year: '2026',
+    hasVideo: false,
+    gdocUrl: 'https://docs.google.com/document/d/1lpjmdusbCTub8DKUCsJW2B8aJGlan8WXEQU5aFRJrIU/edit',
+    topics: ['Political Psychology', 'Ohio Election Law', 'ICE Update', 'Candidate Introductions'],
+    speakers: ['Rose Lounsbury','Todd Uhlman','Zak Lutz','Daquan Neal','Phil Crippen','Kelly Madzey','Andy Brown','Ryan Konkel','Lynn Cooper','Alison Benford','Mel Rodriguez'],
+    summary: 'Dr. Todd Uhlman delivered a presentation on the psychological and historical differences between progressives and conservatives, noting that political orientations are both innate and learned. The club discussed new stricter Ohio election rules regarding mail-in ballots and received an update on the local ICE situation from Mel Rodriguez. Several candidates introduced themselves.',
+    whyItMatters: 'Understanding the psychology behind political persuasion sharpens organizing strategy. The new Ohio mail-in ballot restrictions represent a direct threat to voter access that club members need to communicate clearly to constituents.',
+    agendaItems: [
+      { label: 'Presentation: psychology of political identity', text: 'Dr. Todd Uhlman presented research on how conservative and progressive orientations differ psychologically and historically. He argued that temperament shapes ideology, and that effective political messaging must account for these differences.' },
+      { label: 'Ohio election law changes: mail-in ballots', text: 'Discussion of newly passed Ohio restrictions on mail-in ballot procedures, including tighter ID requirements and shorter request windows. Members discussed implications for turnout and advocacy strategy.' },
+      { label: 'Local ICE situation update', text: 'Mel Rodriguez provided an update on ICE activity in the Dayton area, community responses, and resources available to affected families.' },
+      { label: 'Candidate introductions & donations', text: 'Several candidates introduced campaigns including Daquan Neal, Phil Crippen, Kelly Madzey, Andy Brown, and Ryan Konkel. Club approved donations to three local organizations that presented in November.', motion: { text: 'Motion to approve donations to three local organizations. Seconded. Passed.', result: 'Passed' } },
+    ],
+  },
+
+  /* ── 2025 ──────────────────────────────────────────── */
+  {
+    id: 4,
+    date: 'November 20, 2025', shortDate: 'Nov 20, 2025', year: '2025',
+    hasVideo: true, ytId: 'wHKyCwCFTnA', transcript: null,
+    gdocUrl: 'https://docs.google.com/document/d/1LUf5a9Hb8yCnnYtFTL9oL1DzA6LfGiT-le1EObQGURY/edit',
+    topics: ['Homelessness', 'Housing', 'Secretary of State Race', 'Medical Debt'],
+    speakers: ['Rose Lounsbury','Allison Russo','Courtney Patel','Heather Wilson','Patrick Bailey','Joe Gebhart','Zak Lutz','Peter Benkendorf','Ron Kincaid'],
+    summary: 'The meeting focused on homelessness in Dayton, with a panel of experts describing temporary shelter services, factors driving homelessness like unaffordable housing, and promising outreach programs. Allison Russo shared her plans for the Secretary of State office, while Peter Benkendorf presented on the Miami Valley Medical Debt Relief Campaign.',
+    whyItMatters: 'Homelessness in Dayton is rising alongside housing costs. The club connected local crisis response with structural political solutions, while also advancing awareness of the medical debt relief campaign directly affecting working families in the region.',
+    agendaItems: [
+      { label: 'Homelessness panel', text: 'Panelists Courtney Patel, Heather Wilson, Patrick Bailey, and Joe Gebhart described the current scale of homelessness in Dayton, the role of temporary shelters, and the primary drivers including unaffordable housing and lack of mental health services.' },
+      { label: 'Outreach programs & promising models', text: 'Panelists highlighted successful outreach models from other Ohio cities and discussed what Montgomery County needs to replicate them. Members asked about landlord engagement and rapid rehousing.' },
+      { label: 'Secretary of State: Allison Russo', text: 'Allison Russo outlined her campaign platform for Ohio Secretary of State, focusing on protecting voting access, modernizing election infrastructure, and independent oversight of election administration.' },
+      { label: 'Miami Valley Medical Debt Relief Campaign', text: 'Peter Benkendorf presented on the campaign to purchase and abolish medical debt for Miami Valley residents. Scope, funding mechanism, and volunteer opportunities discussed.' },
+      { label: 'Holiday party planning & Miami Valley Meals donation', text: 'Club approved a tradition-based donation to Miami Valley Meals and announced upcoming holiday party.', motion: { text: 'Motion to approve annual donation to Miami Valley Meals. Seconded. Passed.', result: 'Passed' } },
+    ],
+    timestamps: [],
+  },
+
+  {
+    id: 5,
+    date: 'October 16, 2025', shortDate: 'Oct 16, 2025', year: '2025',
+    hasVideo: false,
+    gdocUrl: 'https://docs.google.com/document/d/1GShqvAwV1dAp7sl3zSaRedW6jCw4UTtSwgN2frbbMKI/edit',
+    topics: ['Gubernatorial Race', 'Public Schools', 'Club Operations'],
+    speakers: ['Rose Lounsbury','Amy Acton','Uriah Langmeyer','Dormetria Robinson Thompson'],
+    summary: 'Gubernatorial candidate Dr. Amy Acton addressed the club, emphasizing support for public schools, free school meals, and the "common humanity" of Ohioans. The meeting introduced a new online check-in procedure, thanked the UD Dems for sponsoring use of the Fitz Center, and approved a donation to school board candidate Dormetria Robinson Thompson.',
+    whyItMatters: 'Dr. Acton\'s gubernatorial campaign represents a major opportunity for Ohio Democrats in 2026. Her visit gave club members early access to assess her platform and begin building local volunteer relationships well ahead of the primary.',
+    agendaItems: [
+      { label: 'Dr. Amy Acton: gubernatorial candidate address', text: 'Dr. Acton spoke about her vision for Ohio centered on public school investment, free school meals for all children, mental health infrastructure, and her concept of "common humanity" as a political framework. Q&A followed.' },
+      { label: 'School board: Dormetria Robinson Thompson', text: 'Candidate Thompson introduced her campaign for school board and discussed her priorities for equity and community engagement in local education.' },
+      { label: 'New check-in procedure', text: 'Uriah Langmeyer introduced an online check-in system to reduce administrative burden at the door. Members were walked through the process.' },
+      { label: 'UD Dems partnership & venue announcement', text: 'Club thanked the University of Dayton Democrats for sponsoring access to the Fitz Center, reducing venue costs.' },
+      { label: 'Donation approval & upcoming friend-raising events', text: 'Club approved donation to Dormetria Robinson Thompson\'s school board campaign. Upcoming friend-raising events announced.', motion: { text: 'Motion to approve donation to Dormetria Robinson Thompson campaign. Seconded. Passed.', result: 'Passed' } },
+    ],
+  },
+
+  {
+    id: 6,
+    date: 'September 30, 2025', shortDate: 'Sep 30, 2025', year: '2025',
+    hasVideo: false,
+    gdocUrl: 'https://docs.google.com/document/d/1ROQPI8ILtbgvJ-pGOQF_Bs5vbUrMKUH3WAXG_WG8In0/edit',
+    topics: ['Property Taxes', 'Human Services Levy', 'Club Communications'],
+    speakers: ['Rose Lounsbury','Karl Keith','Carolyn Rice','Laura Sauber','Emily Foote','Zak Lutz','Carol Costa','Laurel Kerr','Greg Moloskow','Vickie Hamilton-Smith','Dan Palmer','Sam Dorf'],
+    summary: 'A panel on property taxes explained how they fund essential services like schools and parks and discussed proposed state-level changes. The club officially endorsed the Human Services renewal levy and introduced a new communications committee to manage its newsletter and social media.',
+    whyItMatters: 'Proposed state-level property tax changes threaten local funding for schools and services. The Human Services levy renewal directly affects the most vulnerable residents in Montgomery County, making this endorsement a high-stakes civic act.',
+    agendaItems: [
+      { label: 'Property taxes panel', text: 'Karl Keith, Carolyn Rice, and Laura Sauber explained the mechanics of Ohio property taxation, how funds flow to schools, parks, and emergency services, and the specific risks posed by proposed state legislative changes.' },
+      { label: 'Human Services levy endorsement', text: 'Panel presented the case for the Human Services renewal levy. Discussion of what services would be at risk without renewal. Club voted to formally endorse.', motion: { text: 'Motion to endorse the Human Services renewal levy. Seconded. Passed unanimously.', result: 'Passed unanimously' } },
+      { label: 'Candidate updates', text: 'Several local candidates provided campaign updates including Zak Lutz, Carol Costa, and others. New donation structure for local, statewide, and federal races presented.' },
+      { label: 'New communications committee', text: 'Club introduced a communications committee to manage the club newsletter and social media accounts. Laurel Kerr and Greg Moloskow named as initial co-leads.' },
+    ],
+  },
+
+  {
+    id: 7,
+    date: 'May 28, 2025', shortDate: 'May 28, 2025', year: '2025',
+    hasVideo: false,
+    gdocUrl: 'https://docs.google.com/document/d/1PfsuF6N9FR0cFycfVI7rO-JWQDCiC28nE2uOOca4cUg/edit',
+    topics: ['BIPOC Farming', 'Community Gardens', 'DEI', 'Higher Education'],
+    speakers: ['Rose Lounsbury','AJ Boyce','Sharifa Tomlinson','Patty Allen','Gregory Muhammad','Zak Lutz','Sami Ligon','Darius Beckham','Karen Wick','Patricia Campbell','Uriah Langmeyer','Vanessa Portis-Reed'],
+    summary: 'A BIPOC farming panel moderated by AJ Boyce discussed the importance of community gardens, nutrition, and challenges posed by federal funding cuts to agricultural projects. Updates on the "Higher Education Destruction Act" repeal petition were shared. A new DEI committee was formed, four local candidates introduced their campaigns, and the general fund was reported at $5,658.',
+    whyItMatters: 'Federal cuts to agricultural funding disproportionately affect Black and minority farmers and community food programs. The DEI committee formation marks a structural commitment to inclusive organizing that will shape the club\'s work going forward.',
+    agendaItems: [
+      { label: 'BIPOC farming panel', text: 'AJ Boyce moderated a panel with Sharifa Tomlinson, Patty Allen, and Gregory Muhammad on the role of community gardens in food security and community health. Panelists described the impact of federal funding cuts on ongoing agricultural projects.' },
+      { label: '"Higher Education Destruction Act" repeal petition', text: 'Update on signature gathering for a petition opposing the state legislation targeting higher education. Members encouraged to gather signatures in their precincts.' },
+      { label: 'DEI committee formation', text: 'Club voted to form a new Diversity, Equity, and Inclusion committee. Vanessa Portis-Reed named as initial chair.', motion: { text: 'Motion to establish a DEI Committee. Seconded. Passed.', result: 'Passed' } },
+      { label: 'Candidate introductions', text: 'Four local candidates introduced campaigns including Sami Ligon, Darius Beckham, Karen Wick, and Patricia Campbell.' },
+      { label: 'Treasurer\'s report', text: 'General fund reported at $5,658. No outstanding action items from April.' },
+    ],
+  },
+
+  {
+    id: 8,
+    date: 'April 30, 2025', shortDate: 'Apr 30, 2025', year: '2025',
+    hasVideo: false,
+    gdocUrl: 'https://docs.google.com/document/d/1SgH7ALZ2N-eW5Y0PgPSIIwZFwKiwDzl5sYZB6d13AB4/edit',
+    topics: ['School Vouchers', 'Education Privatization', 'Public Schools'],
+    speakers: ['Rose Lounsbury','Dennis Willard','William Phillis','Jocelyn Rhynard','Larry DeGuire'],
+    summary: 'Conducted via Zoom, this meeting centered on the threat of school vouchers to the public education system. Experts Dennis Willard, William Phillis, and Jocelyn Rhynard detailed the school privatization movement in Ohio, legal challenges against the universal voucher program, and the potential budget implications for local school districts.',
+    whyItMatters: 'Ohio\'s universal voucher program redirects public school funding to private institutions, with direct financial impact on Montgomery County school districts. Understanding the legal landscape is prerequisite to effective advocacy.',
+    agendaItems: [
+      { label: 'School voucher threat: overview', text: 'Dennis Willard opened with an overview of the Ohio school privatization movement, tracing the policy history from limited vouchers to the current universal program.' },
+      { label: 'Legal challenges to universal voucher program', text: 'William Phillis presented on pending and past legal challenges to the voucher program, including constitutional questions about public funding of religious institutions.' },
+      { label: 'Budget implications for local districts', text: 'Jocelyn Rhynard detailed the specific budget impact on Dayton-area school districts, with projections through 2027 showing cumulative losses in per-pupil funding.' },
+      { label: 'Member Q&A and action items', text: 'Discussion of advocacy pathways including contacting state legislators, supporting pro-public-education candidates, and raising awareness among parents.' },
+    ],
+  },
+
+  {
+    id: 9,
+    date: 'March 26, 2025', shortDate: 'Mar 26, 2025', year: '2025',
+    hasVideo: true, ytId: 'rp_OtCuCUJk', transcript: null,
+    gdocUrl: 'https://docs.google.com/document/d/1nVZDJlJzfAXAdSG-SZfpt-XaddSEd7EyMIc8TCcWY8w/edit',
+    topics: ['Club Meeting'],
+    speakers: [],
+    summary: 'Meeting minutes and full summary pending. Video recording available. See source document for official record.',
+    whyItMatters: 'This meeting falls in the spring 2025 organizing season ahead of local races. See the official minutes for agenda items and outcomes.',
+    agendaItems: [
+      { label: 'Full minutes', text: 'Complete agenda and minutes available in the source Google Doc linked above. Summary content pending editorial review for this archive.' },
+    ],
+    timestamps: [],
+  },
+
+  {
+    id: 10,
+    date: 'February 26, 2025', shortDate: 'Feb 26, 2025', year: '2025',
+    hasVideo: false,
+    gdocUrl: 'https://docs.google.com/document/d/1wg1lrwziFC8iad3bCyMI_8Y7Y0lFe8MMH4mS9CDFMxc/edit',
+    topics: ['Food Apartheid', 'Gem City Market', 'Club Restructuring', 'Secretary of State 2026'],
+    speakers: ['Rose Lounsbury','Amaha Sellasie','Zak Lutz','Kim Senft-Paras','Laurel Kerr','Lucy Anne McKosky','Melissa Rodriguez','Bryan Hambley','Uriah Langmeyer'],
+    summary: 'Amaha Sellasie spoke on food apartheid in Dayton and the community-building role of the Gem City Market. The club announced restructuring of its Steering Committee into three focused groups — Program and Events, Membership, and Research. Bryan Hambley introduced his underdog campaign for Ohio Secretary of State in 2026.',
+    whyItMatters: 'The Gem City Market represents a model of community-owned food access in a food-apartheid context. The club\'s structural reorganization signals maturation and is designed to support growth into the 2026 election cycle.',
+    agendaItems: [
+      { label: 'Food apartheid in Dayton: Amaha Sellasie', text: 'Amaha Sellasie presented on the concept of food apartheid as a more precise framing than "food desert," describing systemic disinvestment in Black and low-income neighborhoods. The Gem City Market was highlighted as a community-owned alternative building local economic power.' },
+      { label: 'Steering Committee restructuring', text: 'Club leadership presented a proposal to reorganize the Steering Committee into three focused groups: Program and Events, Membership, and Research. Structure approved by members.', motion: { text: 'Motion to adopt new Steering Committee structure. Seconded. Passed.', result: 'Passed' } },
+      { label: 'Secretary of State 2026: Bryan Hambley', text: 'Bryan Hambley introduced his campaign for Ohio Secretary of State, framing it as an underdog bid focused on election integrity and voter access. Club members asked about his platform and path to viability.' },
+    ],
+  },
+
+  {
+    id: 11,
+    date: 'January 6, 2025', shortDate: 'Jan 6, 2025', year: '2025',
+    hasVideo: false,
+    gdocUrl: 'https://docs.google.com/document/d/1ic6EtwfixrLG7KVOcZZAXpMTeOnqqXY3/edit',
+    topics: ['Club Meeting'],
+    speakers: [],
+    summary: 'Meeting minutes available in source document. Summary pending editorial compilation for this archive.',
+    whyItMatters: 'First meeting of the 2025 calendar year. See official minutes for agenda and outcomes.',
+    agendaItems: [
+      { label: 'Full minutes', text: 'Complete agenda and minutes available in the source Google Doc linked above. Summary content pending editorial review for this archive.' },
+    ],
+  },
+
+  /* ── 2024 ──────────────────────────────────────────── */
+  {
+    id: 12,
+    date: 'November 20, 2024', shortDate: 'Nov 20, 2024', year: '2024',
+    hasVideo: false,
+    gdocUrl: 'https://docs.google.com/document/d/13JjifTuxpHhNtL7brcfVK1on58O0O75-ygRK9-WO6eM/edit',
+    topics: ['Club Meeting'],
+    speakers: [],
+    summary: 'Meeting minutes available in source document. Summary pending editorial compilation for this archive.',
+    whyItMatters: 'November 2024 post-general-election meeting. See official minutes for debrief and outcomes.',
+    agendaItems: [
+      { label: 'Full minutes', text: 'Complete agenda and minutes available in the source Google Doc linked above. Summary content pending editorial review for this archive.' },
+    ],
+  },
+
+  {
+    id: 13,
+    date: 'October 18, 2024', shortDate: 'Oct 18, 2024', year: '2024',
+    hasVideo: false,
+    gdocUrl: 'https://docs.google.com/document/d/1YQUbUqiMwme25w7erz2PHQC9_DJZwIfGY9nRc4pmi6c/edit',
+    topics: ['Ohio Innocence Project', 'Wrongful Convictions', 'Gerrymandering'],
+    speakers: ['Alison Benford','Steven Dankof','Tim Benford'],
+    summary: 'Judge Steven Dankof spoke about his work with the Ohio Innocence Project and the systemic issues leading to wrongful convictions, including eyewitness perjury and government misconduct. The meeting also referenced Gene Nichol\'s book "Indecent Assembly" to highlight the impact of gerrymandering on democracy. The Becky Koop Memorial Candidate Fund grew to $5,900.',
+    whyItMatters: 'Wrongful convictions are a direct product of the same broken systems Democrats work to reform. Connecting criminal justice with gerrymandering as structural issues gave members a cohesive framework for advocacy heading into the November election.',
+    agendaItems: [
+      { label: 'Ohio Innocence Project: Judge Steven Dankof', text: 'Judge Dankof described the Innocence Project\'s work exonerating wrongfully convicted Ohioans. He detailed systemic causes including eyewitness misidentification, government misconduct, and inadequate legal representation.' },
+      { label: 'Gerrymandering & "Indecent Assembly"', text: 'Discussion of Gene Nichol\'s book on the political consequences of extreme gerrymandering in Ohio, connecting redistricting to the conditions that allow criminal justice failures to persist.' },
+      { label: 'Becky Koop Memorial Candidate Fund', text: 'Treasurer reported the fund has grown to $5,900 following additional donations. Fund criteria and disbursement process reviewed.' },
+    ],
+  },
+
+  {
+    id: 14,
+    date: 'September 18, 2024', shortDate: 'Sep 18, 2024', year: '2024',
+    hasVideo: false,
+    gdocUrl: 'https://docs.google.com/document/d/13DuxXdnZImbO-XDNXy9s5GOKnuVLK9t1t-efySejZDI/edit',
+    topics: ['Candidate Updates', 'Voter Suppression', 'HB 458', 'Becky Koop Fund'],
+    speakers: ['Alison Benford','Lynn Cooper','Julia Mauk','Rose Lounsbury','Willis Blackshear','Carolyn Rice','Joseph Fisher','Coleman Smith','Marty Gehres','Melissa Rodriguez','Tim Benford'],
+    summary: 'Campaign updates from candidates for Clerk of Courts, Common Pleas Judge, State Representative, and Ohio Senate. Discussion of voter suppression and new ID restrictions under House Bill 458. A $5,000 donation was announced in memory of Becky Koop to establish a candidate fund. Members were encouraged to volunteer as poll standers.',
+    whyItMatters: 'With November 5 weeks away, this meeting was a direct mobilization session — briefing members on candidates, raising awareness of new voter ID obstacles, and establishing a permanent candidate fund in memory of a club leader.',
+    agendaItems: [
+      { label: 'Candidate updates: multiple offices', text: 'Lynn Cooper (Clerk of Courts), Julia Mauk (Common Pleas Judge), Willis Blackshear (State Representative), Carolyn Rice (Ohio Senate), Joseph Fisher, Coleman Smith, and Marty Gehres each provided campaign updates and volunteer asks.' },
+      { label: 'Voter suppression: House Bill 458', text: 'Discussion of HB 458\'s new voter ID requirements and restrictions. Members trained on how to communicate changes to voters they contact and how to assist residents in obtaining valid ID.' },
+      { label: 'Becky Koop Memorial Candidate Fund: $5,000 donation', text: 'A $5,000 donation was announced to establish the Becky Koop Memorial Candidate Fund in honor of a longtime club leader. Fund to support Democratic candidates in Montgomery County races.' },
+      { label: 'Poll standers recruitment', text: 'Members encouraged to volunteer as poll standers on Election Day. Sign-up sheets circulated. Training date announced.' },
+      { label: 'IRS tax bill update', text: 'Club addressed an IRS tax bill received due to an account designation error. Treasurer and legal advisor outlined the resolution process.' },
+    ],
+  },
+
+  {
+    id: 15,
+    date: 'April 17, 2024', shortDate: 'Apr 17, 2024', year: '2024',
+    hasVideo: false,
+    gdocUrl: 'https://docs.google.com/document/d/18jwWN8h44wTKuxVgtM-gjq68R2kSaP6htP4bC5sBSxg/edit',
+    topics: ['Holocaust Education', 'Voting Rights', 'Fair Districts Petition'],
+    speakers: ['Alison Benford','Renate Frydman','Tim Benford','Melissa Rodriguez'],
+    summary: 'Author Renate Frydman gave a moving presentation on her experiences during the Holocaust, followed by Q&A that underscored the critical importance of voting in the upcoming General Election. Update on Fair Districts petition signature collection was provided, and the treasurer confirmed donations to nine candidates and PFLAG. Plans for a "Judicial Evening" announced.',
+    whyItMatters: 'Frydman\'s testimony connected historical authoritarianism to present democratic responsibilities, making the case for civic engagement at a visceral level. Coming months before the November election, the message had direct organizing intent.',
+    agendaItems: [
+      { label: 'Presentation: Renate Frydman — Holocaust survivor memoir', text: 'Renate Frydman shared her personal account of surviving the Holocaust and her experiences in postwar Europe. Q&A emphasized the parallels between historical democratic failures and present-day threats to voting rights and democratic norms.' },
+      { label: 'Fair Districts petition update', text: 'Status update on signature collection for the anti-gerrymandering amendment. Current count and remaining targets shared. Members given sign-up opportunities for weekend canvassing.' },
+      { label: 'Treasurer\'s report: candidate & PFLAG donations', text: 'Treasurer confirmed disbursements to nine candidates and to PFLAG Dayton. Current balance reported.' },
+      { label: '"Judicial Evening" planning', text: 'Plans announced for a dedicated event featuring judicial candidates ahead of the November election. Date and venue to be confirmed.', motion: null },
+    ],
+  },
+
+  {
+    id: 16,
+    date: 'March 27, 2024', shortDate: 'Mar 27, 2024', year: '2024',
+    hasVideo: false,
+    gdocUrl: 'https://docs.google.com/document/d/1qI5PM_NyhIQ_My4yfsoT0mCYuJliuYUJVtMOf7gBGIk/edit',
+    topics: ['PFLAG Dayton', 'LGBTQ+ Rights', 'Ohio Legislation', 'Grants'],
+    speakers: ['Alison Benford','Karen Shirk','Sandra Kallenberg','Danny Kallenberg','Bobbie Arnold','Tim Benford'],
+    summary: 'PFLAG Dayton presented on the organization\'s history, its mission supporting the LGBTQ+ community, and legislative challenges in Ohio targeting healthcare and education. The club discussed the "Frolic for Fund" event and approved $200 grants for PFLAG and several candidates. Financial update showed a bank balance of $4,150.03.',
+    whyItMatters: 'Ohio legislation targeting LGBTQ+ healthcare and education affects thousands of families in the Dayton region. Hosting PFLAG directly connected the club to the most vulnerable constituents of these policy battles.',
+    agendaItems: [
+      { label: 'PFLAG Dayton: history & mission', text: 'Karen Shirk and Sandra Kallenberg presented on PFLAG Dayton\'s founding, current programs supporting LGBTQ+ youth and families, and its role as a resource hub in the Miami Valley.' },
+      { label: 'Ohio legislative threats to LGBTQ+ community', text: 'Discussion of active Ohio bills targeting gender-affirming healthcare for minors and LGBTQ+ content in schools. Panelists described the human impact and litigation strategy.' },
+      { label: '"Frolic for Fund" event', text: 'Discussion of the upcoming "Frolic for Fund" fundraiser, expected revenue, and how proceeds will be allocated.' },
+      { label: '$200 grants approved', text: 'Club voted to approve $200 grants for PFLAG Dayton and several Democratic candidates running in the November election.', motion: { text: 'Motion to approve $200 grants to PFLAG Dayton and identified candidates. Seconded. Passed.', result: 'Passed' } },
+      { label: 'Treasurer\'s report', text: 'Bank balance of $4,150.03 confirmed. No outstanding liabilities.' },
+    ],
+  },
+
+  {
+    id: 17,
+    date: 'February 21, 2024', shortDate: 'Feb 21, 2024', year: '2024',
+    hasVideo: true, ytId: 'JBu-pq4Axtc', transcript: null,
+    gdocUrl: 'https://docs.google.com/document/d/1CGvOYFB5bWTGiPEqpVhP9CFotG3VLtQGIGmceMKYMbQ/edit',
+    topics: ['Candidate Forum', 'Primary 2024'],
+    speakers: ['Alison Benford','Tim Benford','Larry DeGuire'],
+    summary: 'Held at the Montgomery County Democratic Headquarters, this meeting featured a candidate forum where 13 candidates shared their positions and answered questions from the audience. High turnout was attributed to the engaging format. The session was recorded for those unable to attend in person.',
+    whyItMatters: 'With 13 candidates appearing in a single forum, this meeting gave members maximum information density ahead of the May 2024 primary — directly shaping volunteer prioritization and precinct-level organizing.',
+    agendaItems: [
+      { label: 'Candidate forum: 13 candidates', text: 'Thirteen candidates for various local, state, and federal offices presented their platforms and answered member questions. Alison Benford and Tim Benford moderated. Format designed to surface candidate differences efficiently.' },
+      { label: 'Q&A and member discussion', text: 'Extended Q&A session allowed members to probe policy specifics. High engagement noted across all candidate presentations.' },
+      { label: 'Recording availability', text: 'Session was recorded for members unable to attend in person. Larry DeGuire confirmed distribution channel and archive plan.' },
+    ],
+    timestamps: [],
+  },
+
+  {
+    id: 18,
+    date: 'January 17, 2024', shortDate: 'Jan 17, 2024', year: '2024',
+    hasVideo: true, ytId: '3O06E1EHyMM', transcript: null,
+    gdocUrl: 'https://docs.google.com/document/d/1ahu1A3ZwJccGCKVSsUUH1oOmPbcivOXAyfN-NoqgAaY/edit',
+    topics: ['Anti-Gerrymandering', 'Fair Districts', 'Redistricting', 'State & Local Races'],
+    speakers: ['Alison Benford','Tim Benford','Rosalie Bonacci Roberts','David Pepper'],
+    summary: 'The club gathered at the Wright Memorial Public Library to discuss the anti-gerrymandering amendment in Ohio, emphasizing the need for 700,000 signatures to ensure its placement on the November ballot. Key presentations by Rosalie Bonacci Roberts and David Pepper highlighted the bipartisan nature of redistricting reform and the importance of focusing on state and local races to counter GOP influence.',
+    whyItMatters: 'The Fair Districts amendment needed 700,000 signatures — a mass organizing task requiring every Democratic club in Ohio to mobilize. This meeting launched the SDDC\'s signature drive, a campaign that would define much of the club\'s 2024 work.',
+    agendaItems: [
+      { label: 'Anti-gerrymandering amendment: signature drive launch', text: 'Club opened its 2024 season with a focus on the Fair Districts amendment. The 700,000-signature threshold was explained, along with the timeline to ensure ballot placement for November.' },
+      { label: 'Presentation: Rosalie Bonacci Roberts', text: 'Rosalie Bonacci Roberts presented on the bipartisan coalition supporting redistricting reform, framing it as a structural democracy issue rather than a partisan one, and sharing strategies for approaching swing voters.' },
+      { label: 'Presentation: David Pepper', text: 'David Pepper spoke on the importance of state and local races in countering GOP legislative dominance, arguing that Ohio\'s gerrymander is the root cause of unrepresentative policy outcomes.' },
+      { label: 'Candidate updates & finances', text: 'Updates shared on candidates for various local and federal offices. Financial report presented. Club prepared for the spring organizing season.' },
+    ],
+    timestamps: [],
+  },
+];
+
+/* ══════════════════════════════════════════════════════
+   YOUTUBE IFRAME API (Gemini wiring)
+══════════════════════════════════════════════════════ */
+let player = null;
+let syncInterval = null;
+let activeId = 1;
+
+function onYouTubeIframeAPIReady() {
+  const m = MEETINGS.find(x => x.id === activeId);
+  if (m && m.hasVideo) initPlayer(m.ytId);
+}
+
+function initPlayer(ytId) {
+  if (player) { player.destroy(); player = null; }
+  player = new YT.Player('yt-player', {
+    height: '100%', width: '100%',
+    videoId: ytId,
+    playerVars: { enablejsapi: 1, rel: 0, modestbranding: 1 },
+    events: { onStateChange: onPlayerStateChange }
+  });
+}
+
+function onPlayerStateChange(event) {
+  clearInterval(syncInterval);
+  if (event.data === YT.PlayerState.PLAYING) {
+    syncInterval = setInterval(() => {
+      updateTranscriptHighlight(player.getCurrentTime());
+    }, 100);
+  }
+}
+
+function updateTranscriptHighlight(t) {
+  const m = MEETINGS.find(x => x.id === activeId);
+  if (!m || !m.transcript) return;
+  const segs = document.querySelectorAll('.tx-seg');
+  let activeIdx = -1;
+  m.transcript.forEach((s, i) => { if (t >= s.start) activeIdx = i; });
+  segs.forEach((el, i) => {
+    el.classList.remove('active','past');
+    if (i === activeIdx) { el.classList.add('active'); el.scrollIntoView({behavior:'smooth',block:'nearest'}); }
+    else if (i < activeIdx) el.classList.add('past');
+  });
+}
+
+function seekTo(s) {
+  if (player && player.seekTo) { player.seekTo(s, true); updateTranscriptHighlight(s); }
+}
+
+function fmt(s) { return Math.floor(s/60)+':'+(Math.floor(s%60)+'').padStart(2,'0'); }
+
+/* ══════════════════════════════════════════════════════
+   RENDER
+══════════════════════════════════════════════════════ */
+function renderStrip(list) {
+  document.getElementById('dir-strip').innerHTML = list.length
+    ? list.map(m=>`
+        <div class="dir-card ${m.id===activeId?'active':''}" onclick="pick(${m.id})">
+          <div class="dc-date">${m.shortDate}</div>
+          <div class="dc-tag">
+            <div class="dc-dot ${m.hasVideo?'dc-dot-v':'dc-dot-m'}"></div>
+            ${m.hasVideo?'Video + minutes':'Minutes only'}
+          </div>
+        </div>`).join('')
+    : '<div style="padding:14px 16px;font-size:12px;color:var(--slate-mid)">No results.</div>';
+}
+
+function renderArticle(m) {
+  const chips = [
+    ...m.topics.map(t=>`<span class="chip chip-sky">${t}</span>`),
+    ...(m.hasVideo?['<span class="chip chip-dark">&#9654; Video available</span>']:[]),
+  ].join('');
+
+  const speakersHtml = m.speakers.length
+    ? `<div class="speakers-row">${m.speakers.map(s=>`<span class="chip"><span class="chip-lbl">Speaker&thinsp;</span>${s}</span>`).join('')}</div>`
+    : '';
+
+  const videoBlock = m.hasVideo
+    ? `<div class="video-hero"><div id="yt-player"></div></div>`
+    : `<div class="no-video-banner">
+        <div class="no-video-icon">&#127909;</div>
+        <div class="no-video-text"><strong>This meeting was not recorded.</strong> Written minutes are available below and via the source Google Doc. Video will appear here once the club begins regular recording.</div>
+       </div>`;
+
+  /* Timestamps (video meetings only) */
+  const tsBlock = (m.hasVideo && m.timestamps && m.timestamps.length) ? `
+    <div class="ed-block">
+      <h3>Key timestamps</h3>
+      <div class="ts-list">${m.timestamps.map(ts=>`
+        <div class="ts-row" onclick="seekTo(${ts.s})">
+          <span class="ts-time">${ts.t}</span><span class="ts-label">${ts.label}</span>
+        </div>`).join('')}
+      </div>
+    </div>` : '';
+
+  /* Transcript panel (video meetings with transcript data) */
+  const txBlock = m.hasVideo ? `
+    <div class="tx-section">
+      <h3>Live transcript</h3>
+      <div class="tx-panel">
+        <div class="tx-panel-hdr">
+          <span class="tx-panel-hdr-label">Auto-generated transcript</span>
+          <div class="tx-sync-badge">
+            <div class="sync-dot ${m.transcript?'live':''}"></div>
+            ${m.transcript ? 'Synced to video' : 'Transcript pending — fetch via /api/transcript?v='+m.ytId}
+          </div>
+        </div>
+        ${m.transcript && m.transcript.length
+          ? `<div class="tx-body" id="tx-body">
+              ${m.transcript.map(seg=>`
+                <div class="tx-seg" onclick="seekTo(${seg.start})">
+                  <span class="tx-t">${fmt(seg.start)}</span>
+                  <span class="tx-w">${seg.text}</span>
+                </div>`).join('')}
+             </div>`
+          : `<div class="tx-pending">
+               Transcript not yet loaded for this recording.<br>
+               <span style="font-size:11px;margin-top:6px;display:block">
+                 Populate via <code>youtube-transcript-api</code> →
+                 <code>/api/transcript?v=${m.ytId}</code>
+               </span>
+             </div>`
+        }
+      </div>
+    </div>` : '';
+
+  const agendaHtml = m.agendaItems.map(a=>`
+    <div class="agenda-item">
+      <div class="agenda-item-label">${a.label}</div>
+      <p class="agenda-item-text">${a.text}</p>
+      ${a.motion?`<div class="motion-block"><strong>Motion:</strong> ${a.motion.text}</div>`:''}
+    </div>`).join('');
+
+  document.getElementById('article-main').innerHTML = `
+    ${videoBlock}
+    <div class="article-kicker">South Dayton Democratic Club</div>
+    <h1 class="article-title">${m.date} — Meeting</h1>
+    <div class="article-byline">
+      <span>${m.date}</span>
+      <span class="byline-dot"></span>
+      <span>Wright Memorial Public Library / Kettering</span>
+      <span class="byline-dot"></span>
+      <span>${m.hasVideo?'Video + Minutes':'Minutes only'}</span>
+    </div>
+    <div class="meta-chips">${chips}</div>
+    ${speakersHtml}
+    <div class="ed-block"><h3>Meeting summary</h3><p>${m.summary}</p></div>
+    <div class="ed-block"><h3>Why this meeting matters</h3><p>${m.whyItMatters}</p></div>
+    ${tsBlock}
+    ${txBlock}
+    <div class="minutes-section">
+      <h3>Meeting minutes</h3>
+      <div class="minutes-panel">
+        <div class="minutes-panel-hdr">
+          <span class="minutes-panel-hdr-label">Official minutes</span>
+          <a class="minutes-src-link" href="${m.gdocUrl}" target="_blank" rel="noopener">View source doc &rarr;</a>
+        </div>
+        <div class="minutes-body">${agendaHtml}</div>
+      </div>
+    </div>
+    <div class="community-hint">
+      <div class="community-hint-icon">&#9998;</div>
+      <p><strong>Community commentary is coming soon.</strong> Members and the public will be able to submit observations for moderator review.</p>
+    </div>`;
+}
+
+function renderAside(m) {
+  const all = MEETINGS.filter(x=>x.id!==m.id);
+  const idx = MEETINGS.findIndex(x=>x.id===m.id);
+  const next = MEETINGS[idx+1];
+  const prev = MEETINGS[idx-1];
+  const more = all.filter(x=>x.id!==( next?next.id:null) && x.id!==(prev?prev.id:null)).slice(0,4);
+
+  let html = `
+    <div class="sddc-about">
+      <h4>South Dayton Democratic Club</h4>
+      <p>Last Tuesday of the month, 5:30 PM<br>September through May<br><br>
+        <a href="https://daytondem.org" target="_blank" rel="noopener">daytondem.org</a> &middot;
+        <a href="mailto:southdaytondems@gmail.com">Email the club</a>
+      </p>
+    </div>`;
+
+  if (next) html += `
+    <div class="aside-sec">
+      <div class="aside-lbl">Earlier meeting</div>
+      <div class="adj-card" onclick="pick(${next.id})">
+        <div class="adj-card-body">
+          <div class="adj-org">SDDC</div>
+          <div class="adj-date">${next.shortDate}</div>
+          <div class="adj-topic">${next.topics.slice(0,2).join(', ')}</div>
+        </div>
+      </div>
+    </div>`;
+
+  if (prev) html += `
+    <div class="aside-sec">
+      <div class="aside-lbl">Later meeting</div>
+      <div class="adj-card" onclick="pick(${prev.id})">
+        <div class="adj-card-body">
+          <div class="adj-org">SDDC</div>
+          <div class="adj-date">${prev.shortDate}</div>
+          <div class="adj-topic">${prev.topics.slice(0,2).join(', ')}</div>
+        </div>
+      </div>
+    </div>`;
+
+  if (more.length) {
+    html += `<div class="aside-sec"><div class="aside-lbl">Archive</div>`;
+    more.forEach(r=>{
+      html += `<div class="more-item" onclick="pick(${r.id})">
+        <div class="more-date">${r.shortDate}</div>
+        <div class="more-topic">${r.topics.slice(0,2).join(', ')}</div>
+        <div class="more-badge"><div class="dc-dot ${r.hasVideo?'dc-dot-v':'dc-dot-m'}" style="width:6px;height:6px;border-radius:50%;flex-shrink:0;background:${r.hasVideo?'var(--sky-deep)':'var(--border-dark)'}"></div>${r.hasVideo?'Video + minutes':'Minutes only'}</div>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+
+  document.getElementById('article-aside').innerHTML = html;
+}
+
+/* ══════════════════════════════════════════════════════
+   PICK & FILTER
+══════════════════════════════════════════════════════ */
+function pick(id) {
+  clearInterval(syncInterval);
+  activeId = id;
+  const m = MEETINGS.find(x=>x.id===id);
+  renderStrip(getFiltered());
+  renderArticle(m);
+  renderAside(m);
+  window.scrollTo({top:0,behavior:'smooth'});
+  setTimeout(()=>{
+    const card=document.querySelector('.dir-card.active');
+    if(card) card.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
+  },60);
+  if (m.hasVideo) {
+    if (player && player.loadVideoById) {
+      player.loadVideoById(m.ytId); /* Gemini: swap without reinit */
+    } else if (typeof YT!=='undefined' && YT.Player) {
+      initPlayer(m.ytId);
+    }
+  } else {
+    if (player) { player.destroy(); player=null; }
+  }
+}
+
+function getFiltered() {
+  const year = document.getElementById('f-year').value;
+  const type = document.getElementById('f-type').value;
+  const q    = document.getElementById('f-search').value.toLowerCase();
+  return MEETINGS.filter(m=>
+    (!year || m.year===year) &&
+    (!type || (type==='video'?m.hasVideo:!m.hasVideo)) &&
+    (!q    || m.date.toLowerCase().includes(q) ||
+      m.topics.some(t=>t.toLowerCase().includes(q)) ||
+      m.speakers.some(s=>s.toLowerCase().includes(q)) ||
+      m.summary.toLowerCase().includes(q) ||
+      m.agendaItems.some(a=>a.text.toLowerCase().includes(q)))
+  );
+}
+
+function applyFilter() {
+  const f=getFiltered();
+  renderStrip(f);
+  if(!f.find(m=>m.id===activeId)&&f.length) pick(f[0].id);
+}
+
+pick(1);
+</script>
+</body>
+</html>

@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Montgomery County Democratic Party</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* ── HOME ────────────────────────────────────────────── */
+
+    /* Hero */
+    .hero {
+      padding: 100px 0 80px;
+      border-bottom: 1px solid var(--border);
+    }
+    .hero-inner {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 0 32px;
+      display: grid;
+      grid-template-columns: 1fr 420px;
+      gap: 80px;
+      align-items: center;
+    }
+    .hero-eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+    .hero-eyebrow-line {
+      width: 28px;
+      height: 1.5px;
+      background: var(--sky-mid);
+    }
+    .hero h1 {
+      font-family: var(--font-display);
+      font-size: clamp(44px, 6vw, 72px);
+      font-weight: 700;
+      line-height: 1.0;
+      letter-spacing: -0.025em;
+      color: var(--charcoal);
+      margin-bottom: 24px;
+    }
+    .hero h1 em {
+      font-style: italic;
+      color: var(--sky-deep);
+    }
+    .hero-sub {
+      font-size: 18px;
+      line-height: 1.7;
+      color: var(--slate);
+      max-width: 480px;
+      margin-bottom: 36px;
+    }
+    .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+
+    /* Hero right: stat card stack */
+    .hero-stats {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .hero-stat {
+      background: var(--cream);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 22px 26px;
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
+    }
+    .hero-stat-num {
+      font-family: var(--font-display);
+      font-size: 40px;
+      font-weight: 700;
+      color: var(--charcoal);
+      letter-spacing: -0.03em;
+      line-height: 1;
+    }
+    .hero-stat-num.accent { color: var(--sky-deep); }
+    .hero-stat-label { font-size: 13px; color: var(--slate-mid); line-height: 1.4; }
+
+    /* Participation strip */
+    .participate {
+      background: var(--charcoal);
+      padding: 80px 0;
+    }
+    .participate-eyebrow { color: rgba(255,255,255,0.4); margin-bottom: 48px; }
+    .participate-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+    .part-card {
+      background: var(--charcoal);
+      padding: 32px 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      text-decoration: none;
+      transition: background .15s;
+      border: none;
+      cursor: pointer;
+      text-align: left;
+      font-family: inherit;
+    }
+    .part-card:hover { background: #282828; }
+    .part-num {
+      font-family: var(--font-display);
+      font-size: 13px;
+      font-weight: 400;
+      font-style: italic;
+      color: var(--sky-mid);
+    }
+    .part-title {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 600;
+      color: #fff;
+      line-height: 1.2;
+    }
+    .part-desc {
+      font-size: 13px;
+      color: rgba(255,255,255,0.5);
+      line-height: 1.6;
+      flex: 1;
+    }
+    .part-link {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--sky-mid);
+      margin-top: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Register section */
+    .register-section {
+      padding: 80px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .register-inner {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 0 32px;
+      display: grid;
+      grid-template-columns: 1fr 480px;
+      gap: 80px;
+      align-items: start;
+    }
+    .register-left h2 {
+      font-family: var(--font-display);
+      font-size: clamp(28px, 3vw, 40px);
+      font-weight: 600;
+      line-height: 1.15;
+      color: var(--charcoal);
+      margin-bottom: 16px;
+      letter-spacing: -0.01em;
+    }
+    .register-left p {
+      font-size: 15px;
+      color: var(--slate);
+      line-height: 1.7;
+      margin-bottom: 20px;
+    }
+    .register-card {
+      background: var(--cream);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      padding: 32px;
+    }
+    .register-card-title {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--charcoal);
+      margin-bottom: 20px;
+    }
+    .reg-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .register-note {
+      font-size: 11px;
+      color: var(--slate-mid);
+      line-height: 1.7;
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+    }
+
+    /* About / how it works */
+    .about-section { padding: 80px 0; }
+    .about-inner {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 0 32px;
+    }
+    .about-header {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: end;
+      margin-bottom: 56px;
+      padding-bottom: 40px;
+      border-bottom: 1px solid var(--border);
+    }
+    .about-header h2 {
+      font-family: var(--font-display);
+      font-size: clamp(28px, 3vw, 40px);
+      font-weight: 600;
+      line-height: 1.15;
+      letter-spacing: -0.01em;
+    }
+    .about-header p { font-size: 15px; color: var(--slate); line-height: 1.75; }
+    .how-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 40px;
+    }
+    .how-item {}
+    .how-step {
+      font-family: var(--font-display);
+      font-size: 48px;
+      font-weight: 700;
+      font-style: italic;
+      color: var(--sky);
+      line-height: 1;
+      margin-bottom: 14px;
+    }
+    .how-title {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--charcoal);
+      margin-bottom: 10px;
+    }
+    .how-desc { font-size: 14px; color: var(--slate); line-height: 1.7; }
+
+    /* Responsive */
+    @media (max-width: 960px) {
+      .hero-inner { grid-template-columns: 1fr; gap: 40px; }
+      .hero-stats { flex-direction: row; }
+      .participate-grid { grid-template-columns: 1fr 1fr; }
+      .register-inner { grid-template-columns: 1fr; gap: 40px; }
+      .about-header { grid-template-columns: 1fr; gap: 20px; }
+      .how-grid { grid-template-columns: 1fr 1fr; }
+      .reg-row { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 600px) {
+      .participate-grid { grid-template-columns: 1fr; }
+      .how-grid { grid-template-columns: 1fr; }
+      .hero-stats { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="site-nav" id="site-nav"></nav>
+<div class="nav-spacer"></div>
+
+<!-- ── HERO ──────────────────────────────────────────── -->
+<section class="hero">
+  <div class="hero-inner">
+    <div>
+      <div class="hero-eyebrow">
+        <div class="hero-eyebrow-line"></div>
+        <span class="eyebrow">Montgomery County, Ohio</span>
+      </div>
+      <h1>Your voice<br>matters.<br><em>You matter.</em></h1>
+      <p class="hero-sub">
+        This is your party. Understand how it works, find your precinct,
+        meet your neighbors, and make your participation count.
+      </p>
+      <div class="hero-actions">
+        <a href="map.html" class="btn btn-dark">Find my precinct</a>
+        <a href="#register" class="btn btn-outline">Register to vote</a>
+      </div>
+    </div>
+
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="hero-stat-num">141</div>
+        <div class="hero-stat-label">precincts in<br>Montgomery County</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-num accent">23</div>
+        <div class="hero-stat-label">precincts need<br>a captain — that could be you</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-num">100%</div>
+        <div class="hero-stat-label">of meetings are<br>open and recorded</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── PARTICIPATION ──────────────────────────────────── -->
+<section class="participate">
+  <div class="container">
+    <p class="eyebrow participate-eyebrow">Ways to participate</p>
+    <div class="participate-grid">
+      <a class="part-card" href="map.html">
+        <span class="part-num">01</span>
+        <div class="part-title">Find your precinct</div>
+        <p class="part-desc">See which precinct you live in, who represents it, and what organizing is happening near you.</p>
+        <span class="part-link">Open the map &rarr;</span>
+      </a>
+      <a class="part-card" href="#register">
+        <span class="part-num">02</span>
+        <div class="part-title">Register to vote</div>
+        <p class="part-desc">Check your registration status or sign up. We'll route you to the right Ohio resource.</p>
+        <span class="part-link">Check registration &rarr;</span>
+      </a>
+      <a class="part-card" href="captains.html">
+        <span class="part-num">03</span>
+        <div class="part-title">Contact your captain</div>
+        <p class="part-desc">Precinct captains are your direct link to the party. Find yours and get involved locally.</p>
+        <span class="part-link">Find a captain &rarr;</span>
+      </a>
+      <a class="part-card" href="recordings.html">
+        <span class="part-num">04</span>
+        <div class="part-title">Watch meetings</div>
+        <p class="part-desc">Full recordings with transcripts — see exactly what your party is deciding and why.</p>
+        <span class="part-link">Browse recordings &rarr;</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ── REGISTER ───────────────────────────────────────── -->
+<section class="register-section" id="register">
+  <div class="register-inner">
+    <div class="register-left">
+      <p class="eyebrow" style="margin-bottom:16px">Register to vote</p>
+      <h2>Your registration<br>is your foundation.</h2>
+      <p>
+        Enter your information and we'll route you to the correct Ohio
+        Secretary of State resource for your county. Every election
+        is decided by who shows up — make sure you're counted.
+      </p>
+      <a href="https://myvoter.ohiosos.gov/lookup/voter/" target="_blank" class="btn btn-outline btn-sm">
+        Go directly to Ohio SOS &rarr;
+      </a>
+    </div>
+    <div class="register-card">
+      <div class="register-card-title">Check my registration</div>
+      <div class="reg-row">
+        <div class="field">
+          <label>First name</label>
+          <input type="text" placeholder="Jane">
+        </div>
+        <div class="field">
+          <label>Last name</label>
+          <input type="text" placeholder="Smith">
+        </div>
+      </div>
+      <div class="field">
+        <label>Home county</label>
+        <select id="reg-county" onchange="routeReg(this)">
+          <option value="">Select county&hellip;</option>
+          <option value="montgomery">Montgomery</option>
+          <option value="franklin">Franklin</option>
+          <option value="hamilton">Hamilton</option>
+          <option value="summit">Summit</option>
+          <option value="lucas">Lucas</option>
+          <option value="cuyahoga">Cuyahoga</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Date of birth</label>
+        <input type="date">
+      </div>
+      <button class="btn btn-dark" style="width:100%;justify-content:center" onclick="routeReg(document.getElementById('reg-county'))">
+        Check my registration &rarr;
+      </button>
+      <p class="register-note">
+        This tool routes you to official Ohio government resources. We do not store your personal information.
+        <!-- TODO: Implement county-specific MyVote.Ohio.gov deep links -->
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ── HOW IT WORKS ───────────────────────────────────── -->
+<section class="about-section">
+  <div class="about-inner">
+    <div class="about-header">
+      <h2>How the party<br>is organized</h2>
+      <p>
+        The Montgomery County Democratic Party operates through a precinct system —
+        small geographic units that form the foundation of every election. Each precinct
+        elects a captain who connects neighbors to the broader party, coordinates
+        volunteers, and ensures every voice is heard. This site archives party
+        proceedings so participation isn't limited to who can attend in person.
+      </p>
+    </div>
+    <div class="how-grid">
+      <div class="how-item">
+        <div class="how-step">01</div>
+        <div class="how-title">Find your precinct</div>
+        <p class="how-desc">Montgomery County is divided into 141 precincts. Your precinct determines your local representatives, your captain, and your polling location.</p>
+      </div>
+      <div class="how-item">
+        <div class="how-step">02</div>
+        <div class="how-title">Meet your captain</div>
+        <p class="how-desc">Each precinct elects a captain to serve as the bridge between neighbors and the party. Captains organize locally, knock doors, and make sure every vote is counted.</p>
+      </div>
+      <div class="how-item">
+        <div class="how-step">03</div>
+        <div class="how-title">Attend or watch</div>
+        <p class="how-desc">Party meetings are open. Central Committee convenes quarterly. All sessions are recorded, transcribed, and published here so you're never out of the loop.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="site-footer" id="site-footer"></footer>
+
+<script src="shared.js"></script>
+<script>
+  renderNav('home');
+  renderFooter();
+  injectCountyModal();
+
+  function routeReg(sel) {
+    if (!sel.value) return;
+    window.open('https://myvoter.ohiosos.gov/lookup/voter/', '_blank');
+    /* TODO: county-specific deep links via Ohio SOS API */
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Precinct Captains — MCDEM</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* ── CAPTAINS ────────────────────────────────────────── */
+    .page-hero {
+      padding: 60px 0 48px;
+      border-bottom: 1px solid var(--border);
+    }
+    .page-hero h1 {
+      font-family: var(--font-display);
+      font-size: clamp(36px, 5vw, 56px);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.05;
+      color: var(--charcoal);
+      margin-bottom: 14px;
+    }
+    .page-hero p { font-size: 16px; color: var(--slate); max-width: 540px; line-height: 1.7; }
+
+    /* Stats row */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      margin: 40px 0;
+    }
+    .stat-cell {
+      background: var(--warm-white);
+      padding: 24px 28px;
+    }
+    .stat-label { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--slate-mid); margin-bottom: 8px; }
+    .stat-num   { font-family: var(--font-display); font-size: 42px; font-weight: 700; color: var(--charcoal); letter-spacing: -0.03em; line-height: 1; }
+    .stat-num.red { color: #b83232; }
+    .stat-num.sky { color: var(--sky-deep); }
+    .stat-sub { font-size: 12px; color: var(--slate-mid); margin-top: 4px; }
+
+    /* Source note */
+    .source-note {
+      font-size: 12px;
+      color: var(--slate-mid);
+      padding: 12px 16px;
+      background: var(--cream);
+      border-radius: var(--radius-md);
+      border-left: 2px solid var(--sky-mid);
+      margin-bottom: 24px;
+    }
+
+    /* Table */
+    .table-wrap {
+      background: var(--warm-white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    thead { background: var(--cream); }
+    thead th {
+      padding: 11px 16px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      color: var(--slate-mid);
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      user-select: none;
+      white-space: nowrap;
+    }
+    thead th:hover { color: var(--charcoal); }
+    thead th .arr { margin-left: 4px; color: var(--border-dark); }
+    tbody tr { border-bottom: 1px solid var(--border); transition: background .1s; }
+    tbody tr:last-child { border: none; }
+    tbody tr:hover { background: var(--cream); }
+    tbody td { padding: 12px 16px; vertical-align: middle; }
+    .col-pct  { font-weight: 600; color: var(--charcoal); font-size: 13px; }
+    .col-ward { font-size: 12px; color: var(--slate-mid); }
+    .col-name { font-size: 14px; color: var(--charcoal); }
+    .col-contact a {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--sky-deep);
+      text-decoration: none;
+      padding: 4px 12px;
+      border: 1px solid var(--sky);
+      border-radius: 20px;
+      transition: background .1s, color .1s;
+    }
+    .col-contact a:hover { background: var(--sky); color: var(--sky-dark); }
+    .vacant-tag {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      color: #b83232;
+      background: #fdecea;
+      border: 1px solid #f5c0c0;
+      padding: 3px 10px;
+      border-radius: 20px;
+    }
+    tbody tr.vacant { background: #fffaf9; }
+    tbody tr.vacant:hover { background: #fdf4f4; }
+
+    /* Pagination */
+    .pag { display: flex; justify-content: center; gap: 6px; padding: 16px; border-top: 1px solid var(--border); }
+    .pag-btn {
+      width: 32px; height: 32px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--warm-white);
+      font-size: 13px; font-family: var(--font-sans);
+      cursor: pointer; color: var(--slate);
+      display: flex; align-items: center; justify-content: center;
+      transition: all .1s;
+    }
+    .pag-btn:hover { border-color: var(--charcoal); color: var(--charcoal); }
+    .pag-btn.on { background: var(--charcoal); color: #fff; border-color: var(--charcoal); }
+    .pag-info { font-size: 12px; color: var(--slate-mid); display: flex; align-items: center; padding: 0 8px; }
+
+    /* Vacant CTA */
+    .vacant-cta {
+      margin-top: 32px;
+      background: var(--charcoal);
+      border-radius: var(--radius-xl);
+      padding: 36px 40px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 32px;
+      align-items: center;
+    }
+    .vacant-cta h3 { font-family: var(--font-display); font-size: 22px; font-weight: 600; color: #fff; margin-bottom: 6px; }
+    .vacant-cta p  { font-size: 14px; color: rgba(255,255,255,0.55); line-height: 1.6; }
+
+    @media (max-width: 768px) {
+      .stats-row { grid-template-columns: 1fr 1fr; }
+      .col-phone, .col-ward { display: none; }
+      .vacant-cta { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 480px) {
+      .stats-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="site-nav" id="site-nav"></nav>
+<div class="nav-spacer"></div>
+
+<section class="page-hero">
+  <div class="container">
+    <p class="eyebrow" style="margin-bottom:16px">Precinct Captains</p>
+    <h1>Your direct<br>connection.</h1>
+    <p>Precinct captains are the foundation of local organizing in Montgomery County. Find yours, introduce yourself, and get involved.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-cell">
+        <div class="stat-label">Total precincts</div>
+        <div class="stat-num" id="s-total">141</div>
+        <div class="stat-sub">Montgomery County</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-label">Captains assigned</div>
+        <div class="stat-num sky" id="s-filled">—</div>
+        <div class="stat-sub">Active this cycle</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-label">Vacant precincts</div>
+        <div class="stat-num red" id="s-vacant">—</div>
+        <div class="stat-sub">Needs a captain</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-label">Coverage</div>
+        <div class="stat-num" id="s-pct">—</div>
+        <div class="stat-sub">Of precincts staffed</div>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filter-row">
+      <span class="filter-label">Filter</span>
+      <select id="f-ward" onchange="filter()">
+        <option value="">All wards</option>
+        <option>Ward 1</option><option>Ward 2</option><option>Ward 3</option><option>Ward 4</option><option>Ward 5</option>
+      </select>
+      <select id="f-status" onchange="filter()">
+        <option value="">All precincts</option>
+        <option value="filled">Assigned</option>
+        <option value="vacant">Vacant only</option>
+      </select>
+      <input type="text" id="f-q" placeholder="Search name or precinct&hellip;" oninput="filter()" style="min-width:200px">
+    </div>
+
+    <p class="source-note">
+      <strong>Data source:</strong> Montgomery County Democratic Party official roster.
+      Placeholder data — full PDF conversion pending in a separate session.
+    </p>
+
+    <!-- Table -->
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th onclick="sort('id')">Precinct <span class="arr">&#8597;</span></th>
+            <th onclick="sort('ward')" class="col-ward">Ward <span class="arr">&#8597;</span></th>
+            <th onclick="sort('name')">Captain <span class="arr">&#8597;</span></th>
+            <th class="hide-mobile">Phone</th>
+            <th>Contact</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+      <div class="pag" id="pag"></div>
+    </div>
+
+    <!-- Vacant CTA -->
+    <div class="vacant-cta">
+      <div>
+        <h3>Is your precinct vacant?</h3>
+        <p>Precinct captains are elected neighbors who serve as the bridge between their community and the party. One meeting to get started.</p>
+      </div>
+      <a href="mailto:info@example.com" class="btn btn-sky" style="flex-shrink:0">
+        <!-- TODO: Replace with real intake form URL -->
+        Express interest &rarr;
+      </a>
+    </div>
+
+  </div>
+</section>
+
+<footer class="site-footer" id="site-footer"></footer>
+
+<script src="shared.js"></script>
+<script>
+  renderNav('captains');
+  renderFooter();
+  injectCountyModal();
+
+  const CAPS = [
+    { id:'1A', ward:'Ward 1', name:'Maria Alvarez',    phone:'937-555-0101', email:'m.alvarez@example.com',  vacant:false },
+    { id:'1B', ward:'Ward 1', name:'James Osei',        phone:'937-555-0102', email:'j.osei@example.com',     vacant:false },
+    { id:'1C', ward:'Ward 1', name:'',                  phone:'',             email:'',                       vacant:true  },
+    { id:'2A', ward:'Ward 2', name:'',                  phone:'',             email:'',                       vacant:true  },
+    { id:'2B', ward:'Ward 2', name:'Patricia Williams', phone:'937-555-0104', email:'p.williams@example.com', vacant:false },
+    { id:'2C', ward:'Ward 2', name:'Kevin Torres',      phone:'937-555-0105', email:'k.torres@example.com',   vacant:false },
+    { id:'3A', ward:'Ward 3', name:'',                  phone:'',             email:'',                       vacant:true  },
+    { id:'3B', ward:'Ward 3', name:'Samuel Diaz',       phone:'937-555-0106', email:'s.diaz@example.com',     vacant:false },
+    { id:'3C', ward:'Ward 3', name:'Diane Foster',      phone:'937-555-0107', email:'d.foster@example.com',   vacant:false },
+    { id:'4A', ward:'Ward 4', name:'Linda Park',        phone:'937-555-0108', email:'l.park@example.com',     vacant:false },
+    { id:'4B', ward:'Ward 4', name:'Robert Chen',       phone:'937-555-0109', email:'r.chen@example.com',     vacant:false },
+    { id:'4C', ward:'Ward 4', name:'',                  phone:'',             email:'',                       vacant:true  },
+    { id:'5A', ward:'Ward 5', name:'',                  phone:'',             email:'',                       vacant:true  },
+    { id:'5B', ward:'Ward 5', name:'Angela Moore',      phone:'937-555-0111', email:'a.moore@example.com',    vacant:false },
+    { id:'5C', ward:'Ward 5', name:'Marcus Webb',       phone:'937-555-0112', email:'m.webb@example.com',     vacant:false },
+  ];
+
+  const PAGE_SIZE = 10;
+  let page = 1, sortKey = 'id', sortDir = 1, filtered = [...CAPS];
+
+  function updateStats() {
+    const filled = CAPS.filter(c=>!c.vacant).length;
+    const vacant = CAPS.filter(c=>c.vacant).length;
+    const total  = CAPS.length;
+    document.getElementById('s-total').textContent  = total;
+    document.getElementById('s-filled').textContent = filled;
+    document.getElementById('s-vacant').textContent = vacant;
+    document.getElementById('s-pct').textContent    = Math.round(filled/total*100)+'%';
+  }
+
+  function filter() {
+    const ward   = document.getElementById('f-ward').value;
+    const status = document.getElementById('f-status').value;
+    const q      = document.getElementById('f-q').value.toLowerCase();
+    filtered = CAPS.filter(c =>
+      (!ward   || c.ward === ward) &&
+      (!status || (status==='vacant' ? c.vacant : !c.vacant)) &&
+      (!q      || c.name.toLowerCase().includes(q) || c.id.toLowerCase().includes(q))
+    );
+    page = 1; render();
+  }
+
+  function sort(key) {
+    if (sortKey === key) sortDir *= -1; else { sortKey = key; sortDir = 1; }
+    render();
+  }
+
+  function render() {
+    const sorted = [...filtered].sort((a,b) => {
+      const av=a[sortKey]||'', bv=b[sortKey]||'';
+      return av<bv?-sortDir:av>bv?sortDir:0;
+    });
+    const total = sorted.length, pages = Math.max(1,Math.ceil(total/PAGE_SIZE));
+    const slice = sorted.slice((page-1)*PAGE_SIZE, page*PAGE_SIZE);
+
+    document.getElementById('tbody').innerHTML = slice.map(c => `
+      <tr class="${c.vacant?'vacant':''}">
+        <td class="col-pct">${c.id}</td>
+        <td class="col-ward hide-mobile">${c.ward}</td>
+        <td class="col-name">${c.vacant ? '<span class="vacant-tag">Vacant</span>' : c.name}</td>
+        <td class="hide-mobile" style="font-size:12px;color:var(--slate-mid)">${c.phone||'—'}</td>
+        <td class="col-contact">${c.vacant ? '' : `<a href="mailto:${c.email}">Email &rarr;</a>`}</td>
+      </tr>
+    `).join('') || '<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--slate-mid)">No results.</td></tr>';
+
+    const pag = document.getElementById('pag');
+    if (pages<=1) { pag.innerHTML=''; return; }
+    let html = `<span class="pag-info">${total} results</span>`;
+    for (let i=1;i<=pages;i++) html += `<button class="pag-btn ${i===page?'on':''}" onclick="goPage(${i})">${i}</button>`;
+    pag.innerHTML = html;
+  }
+
+  function goPage(n) { page=n; render(); }
+  updateStats(); render();
+</script>
+</body>
+</html>
