@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Precinct — Pitch One-Pager</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        #0e0f11;
+    --surface:   #16181c;
+    --surface-2: #1e2128;
+    --border:    rgba(255,255,255,0.07);
+    --border-2:  rgba(255,255,255,0.12);
+    --text:      #e8e8e4;
+    --muted:     #666d7a;
+    --accent:    #3b82f6;
+    --accent-dim:#1d3a6e;
+    --accent-bg: #131c2e;
+    --accent-text:#93c5fd;
+    --gold:      #f0b429;
+    --gold-bg:   #1c1608;
+    --gold-text: #b45309;
+    --green-bg:  #0d1f10;
+    --green-text:#86efac;
+    --green-border: rgba(134,239,172,0.2);
+    --toggle-bg: #1e2128;
+    --toggle-border: rgba(255,255,255,0.12);
+    --toggle-text: #93c5fd;
+    --toggle-icon-dark: block;
+    --toggle-icon-light: none;
+  }
+
+  :root.light {
+    --bg:        #f7f6f2;
+    --surface:   #ffffff;
+    --surface-2: #f0efe9;
+    --border:    rgba(0,0,0,0.08);
+    --border-2:  rgba(0,0,0,0.13);
+    --text:      #1a1a1a;
+    --muted:     #888;
+    --accent:    #185FA5;
+    --accent-dim:#B5D4F4;
+    --accent-bg: #E6F1FB;
+    --accent-text:#0C447C;
+    --gold:      #92400e;
+    --gold-bg:   #fffbeb;
+    --gold-text: #92400e;
+    --green-bg:  #f0fdf4;
+    --green-text:#166534;
+    --green-border: rgba(22,101,52,0.2);
+    --toggle-bg: #ffffff;
+    --toggle-border: rgba(0,0,0,0.13);
+    --toggle-text: #185FA5;
+  }
+
+  /* card body text in light mode */
+  :root.light .card-body       { color: #555; }
+  :root.light .c-p1 .card-body { color: #0C447C; opacity: 1; }
+  :root.light .c-p3 .card-body { color: #92400e; opacity: 1; }
+  :root.light .c-solution .card-body { color: #0C447C; opacity: 1; }
+  :root.light .c-ask .card-body { color: #0C447C; opacity: 1; }
+  :root.light .c-ask { background: #E6F1FB; border-color: #B5D4F4; }
+  :root.light .c-p1 .card-title { color: #0C447C; }
+  :root.light .c-solution .card-title { color: #0C447C; }
+  :root.light .c-ask .card-title { color: #0C447C; }
+  :root.light .c-ask .card-label { color: #185FA5; }
+  :root.light .flow-text        { color: #555; }
+  :root.light .bridge-text      { color: #444; }
+  :root.light .user-body        { color: #666; }
+  :root.light .user-card-captain { background: #E6F1FB; border-color: #B5D4F4; }
+  :root.light .user-card-captain .user-label { color: #185FA5; }
+  :root.light .user-card-captain .user-title { color: #0C447C; }
+  :root.light .user-card-captain .user-body  { color: #185FA5; }
+  :root.light .contact-detail   { color: #555; }
+  :root.light .c-bridge { background: #f0efe9; }
+  :root.light .stat-label { color: #666; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 400;
+    color: var(--text);
+    background: var(--bg);
+    min-height: 100vh;
+    padding: 2.5rem 1.5rem;
+  }
+
+  .wrap {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  /* ── eyebrow ── */
+  .eyebrow {
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 1.25rem;
+  }
+
+  /* ── bento grid ── */
+  .bento {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: 14px;
+    padding: 1.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card-label {
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.6rem;
+  }
+
+  .card-title {
+    font-family: 'DM Serif Display', serif;
+    line-height: 1.15;
+    color: var(--text);
+  }
+
+  .card-body {
+    font-size: 13px;
+    line-height: 1.7;
+    color: #8a919e;
+    margin-top: 0.6rem;
+  }
+
+  /* ── hero card ── */
+  .c-hero {
+    grid-column: span 12;
+    background: var(--surface);
+    padding: 2.25rem 2.5rem 2rem;
+  }
+
+  .c-hero .card-title {
+    font-size: clamp(32px, 5vw, 48px);
+    max-width: 680px;
+    margin-bottom: 0.75rem;
+  }
+
+  .c-hero .card-title em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .c-hero .card-body {
+    max-width: 560px;
+    font-size: 14px;
+  }
+
+  .tag-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 1.25rem;
+  }
+
+  .tag {
+    font-size: 11px;
+    padding: 3px 9px;
+    border-radius: 20px;
+    border: 0.5px solid var(--border-2);
+    color: var(--muted);
+    background: var(--surface-2);
+  }
+
+  .tag-blue {
+    background: var(--accent-bg);
+    border-color: var(--accent-dim);
+    color: var(--accent-text);
+  }
+
+  /* ── problem 1 — structural opacity ── */
+  .c-p1 {
+    grid-column: span 4;
+    background: var(--accent-bg);
+    border-color: var(--accent-dim);
+  }
+
+  .c-p1 .card-label { color: var(--accent); }
+  .c-p1 .card-title { font-size: 19px; color: #c7dffe; }
+  .c-p1 .card-body  { color: var(--accent-text); opacity: 0.8; }
+
+  /* ── problem 2 — captain bottleneck ── */
+  .c-p2 {
+    grid-column: span 4;
+  }
+
+  .c-p2 .card-title { font-size: 19px; }
+
+  /* ── problem 3 — apathy ── */
+  .c-p3 {
+    grid-column: span 4;
+    background: var(--gold-bg);
+    border-color: rgba(240,180,41,0.2);
+  }
+
+  .c-p3 .card-label { color: var(--gold); }
+  .c-p3 .card-title { font-size: 19px; color: var(--gold-text); }
+  .c-p3 .card-body  { color: rgba(252,211,77,0.65); }
+
+  /* ── causal bridge ── */
+  .c-bridge {
+    grid-column: span 12;
+    background: var(--surface-2);
+    border-color: var(--border-2);
+    padding: 1.1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .bridge-line {
+    width: 3px;
+    align-self: stretch;
+    background: var(--accent);
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  .bridge-text {
+    font-size: 13.5px;
+    line-height: 1.65;
+    color: #a0a8b4;
+  }
+
+  .bridge-text strong {
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  /* ── stats row ── */
+  .c-stat {
+    grid-column: span 4;
+    background: var(--surface-2);
+    text-align: center;
+    padding: 1.25rem 1rem;
+  }
+
+  .stat-num {
+    font-family: 'DM Serif Display', serif;
+    font-size: 36px;
+    color: var(--text);
+    display: block;
+    margin-bottom: 5px;
+  }
+
+  .stat-label {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+
+  /* ── solution big card ── */
+  .c-solution {
+    grid-column: span 8;
+    background: var(--accent-bg);
+    border-color: var(--accent-dim);
+  }
+
+  .c-solution .card-label { color: var(--accent); }
+  .c-solution .card-title { font-size: 22px; color: #c7dffe; margin-bottom: 0.75rem; }
+  .c-solution .card-body  { color: var(--accent-text); opacity: 0.85; font-size: 13.5px; }
+
+  /* ── users stack ── */
+  .c-users {
+    grid-column: span 4;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: transparent;
+    border: none;
+    padding: 0;
+  }
+
+  .user-card {
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: 14px;
+    padding: 1.1rem 1.25rem;
+    flex: 1;
+  }
+
+  .user-card-captain {
+    background: #111827;
+    border-color: rgba(59,130,246,0.25);
+  }
+
+  .user-label {
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.4rem;
+  }
+
+  .user-card-captain .user-label { color: var(--accent); }
+
+  .user-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 15px;
+    line-height: 1.3;
+    color: var(--text);
+    margin-bottom: 0.4rem;
+  }
+
+  .user-body {
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--muted);
+  }
+
+  /* ── flow ── */
+  .c-flow {
+    grid-column: span 12;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    overflow: hidden;
+  }
+
+  .flow-step {
+    padding: 1.25rem 1.25rem 1.25rem;
+    border-right: 0.5px solid var(--border);
+  }
+
+  .flow-step:last-child { border-right: none; }
+
+  .flow-tier {
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 3px;
+  }
+
+  .flow-num {
+    font-size: 11px;
+    color: var(--accent);
+    font-weight: 500;
+    margin-bottom: 6px;
+  }
+
+  .flow-text {
+    font-size: 12.5px;
+    color: #8a919e;
+    line-height: 1.55;
+  }
+
+  /* ── revenue ── */
+  .c-rev1, .c-rev2 {
+    grid-column: span 6;
+  }
+
+  .c-rev1 .card-title, .c-rev2 .card-title { font-size: 17px; margin-bottom: 0.5rem; }
+
+  /* ── ask ── */
+  .c-ask {
+    grid-column: span 7;
+    background: #0a1628;
+    border-color: var(--accent-dim);
+  }
+
+  .c-ask .card-label { color: var(--accent); }
+  .c-ask .card-title { font-size: 26px; color: #c7dffe; margin-bottom: 0.6rem; }
+  .c-ask .card-body  { color: var(--accent-text); opacity: 0.8; font-size: 13px; }
+
+  /* ── contact ── */
+  .c-contact {
+    grid-column: span 5;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .contact-name {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .contact-detail {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  .badge-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .badge {
+    font-size: 11px;
+    padding: 3px 9px;
+    border-radius: 4px;
+  }
+
+  .badge-green {
+    background: var(--green-bg);
+    border: 0.5px solid var(--green-border);
+    color: var(--green-text);
+  }
+
+  .badge-gold {
+    background: var(--gold-bg);
+    border: 0.5px solid rgba(240,180,41,0.2);
+    color: var(--gold-text);
+  }
+
+  @media (max-width: 640px) {
+    .bento { grid-template-columns: 1fr; gap: 8px; }
+    .c-hero, .c-p1, .c-p2, .c-p3, .c-bridge, .c-stat,
+    .c-solution, .c-users, .c-flow, .c-rev1, .c-rev2,
+    .c-ask, .c-contact { grid-column: span 1; }
+    .c-flow { grid-template-columns: 1fr; }
+    .flow-step { border-right: none; border-bottom: 0.5px solid var(--border); }
+    .flow-step:last-child { border-bottom: none; }
+    .c-users { flex-direction: column; }
+  }
+
+  /* ── theme toggle ── */
+  .theme-toggle {
+    position: fixed;
+    top: 1.25rem;
+    right: 1.25rem;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 13px 7px 10px;
+    border-radius: 99px;
+    border: 0.5px solid var(--toggle-border);
+    background: var(--toggle-bg);
+    color: var(--toggle-text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s, color 0.2s, box-shadow 0.2s;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+  }
+
+  .theme-toggle:hover {
+    box-shadow: 0 3px 14px rgba(0,0,0,0.35);
+  }
+
+  .theme-toggle svg {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.75;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+</style>
+</head>
+<body>
+
+<button class="theme-toggle" id="themeToggle" aria-label="Toggle light/dark mode">
+  <svg id="icon-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+  <svg id="icon-light" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+  <span id="toggleLabel">Light mode</span>
+</button>
+
+<div class="wrap">
+
+  <p class="eyebrow">Pitch draft &mdash; April 2026</p>
+
+  <!-- ── BENTO ROW 1: Hero ── -->
+  <div class="bento">
+    <div class="card c-hero">
+      <p class="card-label">Precinct</p>
+      <h1 class="card-title">Reconnecting voters to the<br><em>party machine</em> they don't know they have —<br>and giving it the tools to reach them.</h1>
+      <p class="card-body">A civic publishing and engagement platform that makes Democratic Party structure legible, gives precinct captains the research they don't have time for, and converts voter apathy into structured participation. Starting in Montgomery County, Ohio.</p>
+      <div class="tag-row">
+        <span class="tag tag-blue">Civic tech</span>
+        <span class="tag tag-blue">Constituent communications</span>
+        <span class="tag tag-blue">Citizen-centered relationship infrastructure</span>
+        <span class="tag">AI-native workflows</span>
+        <span class="tag">Community &amp; social health</span>
+        <span class="tag">Civics education</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── BENTO ROW 2: Three problems ── -->
+  <div class="bento">
+    <div class="card c-p1">
+      <p class="card-label">Problem 1 — Structural opacity</p>
+      <p class="card-title">Most Democratic voters don't know their precinct captain exists.</p>
+      <p class="card-body">The party's most local layer — the elected precinct representative — is functionally invisible. Captains are often appointed rather than elected, uncontested, and unreachable. The machinery meant to represent voters represents itself instead.</p>
+    </div>
+    <div class="card c-p2">
+      <p class="card-label">Problem 2 — Captain bottleneck</p>
+      <p class="card-title">Captains are expected to do broadcast work without broadcast tools.</p>
+      <p class="card-body">Writing a neighborhood update means manually tracking council agendas, parsing school board minutes, and composing content from scratch — entirely on volunteer time. Most captains simply don't. The communication layer that should exist between the party and its constituents is functionally offline.</p>
+    </div>
+    <div class="card c-p3">
+      <p class="card-label">Problem 3 — Voter apathy</p>
+      <p class="card-title">Apathy is a rational response to a broken interface, not an indifference problem.</p>
+      <p class="card-body">The civic cost of staying engaged — two-hour meetings, opaque agendas, fragmented platforms — exceeds what most working people can sustain. The standard fix is a turnout campaign. The actual fix is rebuilding the information channel.</p>
+    </div>
+
+    <!-- causal bridge -->
+    <div class="card c-bridge">
+      <div class="bridge-line"></div>
+      <p class="bridge-text"><strong>The causal chain:</strong> Voters don't know the machinery exists because captains lack the tools to tell them — and captains lack the tools because no one has built them. Voter apathy is downstream of captain burnout. Solve the bottleneck; reduce the apathy.</p>
+    </div>
+  </div>
+
+  <!-- ── BENTO ROW 3: Stats ── -->
+  <div class="bento">
+    <div class="card c-stat">
+      <span class="stat-num">530K</span>
+      <span class="stat-label">county residents across Dayton metro</span>
+    </div>
+    <div class="card c-stat">
+      <span class="stat-num">100+</span>
+      <span class="stat-label">precincts across Dayton, Kettering, Centerville &amp; townships</span>
+    </div>
+    <div class="card c-stat">
+      <span class="stat-num">1</span>
+      <span class="stat-label">active local Democratic club as beachhead partner</span>
+    </div>
+  </div>
+
+  <!-- ── BENTO ROW 4: Solution + Who it's for ── -->
+  <div class="bento">
+    <div class="card c-solution">
+      <p class="card-label">The solution</p>
+      <p class="card-title">A precinct-level civic publishing platform with address-resolved governance maps, LLM-summarized official content, and a structured constituent opinion channel — spanning local, state, and federal offices.</p>
+      <p class="card-body">The map layer shows governance boundaries (precincts, wards, school districts, legislative districts) and resolves any tapped address to its full representation stack. The content layer ingests official documents at every tier and produces digests captains can edit and push to their subscribers. The opinion layer converts subscriber responses into geo-tagged sentiment data — usable by the party as precinct health intelligence and by government bodies as structured pre-meeting public input. A participation layer closes the loop: upcoming meetings, public comment windows, town halls, in-person organizing events.</p>
+    </div>
+    <div class="c-users card">
+      <div class="user-card user-card-captain">
+        <p class="user-label">Primary — precinct captain</p>
+        <p class="user-title">Research done. They curate and publish.</p>
+        <p class="user-body">Digests are auto-generated for their exact precinct geography. Their job becomes editing and voice — not research. Newsletter, lit drop, or event push in one step. Activist activities can be appended to any item.</p>
+      </div>
+      <div class="user-card">
+        <p class="user-label">Secondary — resident subscriber</p>
+        <p class="user-title">Enter an address. Know what governs it.</p>
+        <p class="user-body">Full civic stack resolved: precinct captain, ward, school district, council seat, state leg, congressional seat. Subscribe, respond to polls, and find out where to show up in person.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── BENTO ROW 5: How it works ── -->
+  <div class="bento">
+    <div class="card c-flow">
+      <div class="flow-step">
+        <p class="flow-tier">Step</p>
+        <p class="flow-num">01 — Ingest</p>
+        <p class="flow-text">Official documents — agendas, minutes, legislative records — ingested across local, state, and federal tiers and summarized by LLM into plain-language digests per jurisdiction.</p>
+      </div>
+      <div class="flow-step">
+        <p class="flow-tier">Step</p>
+        <p class="flow-num">02 — Publish</p>
+        <p class="flow-text">Captain reviews, edits, and publishes their precinct digest as a newsletter, lit drop sheet, or feed push. Activist events and action items can be appended to any entry.</p>
+      </div>
+      <div class="flow-step">
+        <p class="flow-tier">Step</p>
+        <p class="flow-num">03 — Engage</p>
+        <p class="flow-text">Subscribers read, respond to polls, post opinions on agenda items. Every response is geo-tagged to the subscriber's full jurisdiction stack — no self-identification required.</p>
+      </div>
+      <div class="flow-step">
+        <p class="flow-tier">Step</p>
+        <p class="flow-num">04 — Act</p>
+        <p class="flow-text">A participation layer surfaces what to do next: upcoming meetings, public comment windows, town halls, and in-person organizing events — all scoped to the subscriber's address.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── BENTO ROW 6: Revenue ── -->
+  <div class="bento">
+    <div class="card c-rev1">
+      <p class="card-label">Revenue — primary</p>
+      <p class="card-title">Party &amp; club subscriptions</p>
+      <p class="card-body">County parties, Democratic clubs, and state party chapters pay a SaaS subscription for a captain-facing publishing dashboard and a party-facing engagement layer — participation rates, precinct health scores, and digest delivery analytics. SDDC as founding customer.</p>
+    </div>
+    <div class="card c-rev2">
+      <p class="card-label">Revenue — secondary</p>
+      <p class="card-title">Small government sentiment</p>
+      <p class="card-body">City councils, school boards, and township trustees pay for structured voice-of-constituent input tied to specific agenda items — replacing public comment theater with anonymous, geo-tagged sentiment collected before and after each meeting.</p>
+    </div>
+  </div>
+
+  <!-- ── BENTO ROW 7: Ask + Contact ── -->
+  <div class="bento">
+    <div class="card c-ask">
+      <p class="card-label">The ask</p>
+      <p class="card-title">Pre-seed experiment,<br>one county, one cycle.</p>
+      <p class="card-body">Funding to build and validate the Montgomery County MVP: address-resolution map, document ingestion pipeline, LLM summarization layer, captain publishing interface, and subscriber feed with opinion layer. Measurable outcomes: demonstrable reduction in captain content-production time, increase in precinct digest distribution, and measurable subscriber engagement within one political cycle.</p>
+    </div>
+    <div class="card c-contact">
+      <div>
+        <p class="card-label">Beachhead partner</p>
+        <p class="contact-name">South Dayton Democratic Club (SDDC)</p>
+        <p class="contact-detail">Montgomery County, Ohio. Active club with membership growth mandate, direct access to county party precinct structure, and a captain network ready to pilot the publishing workflow.</p>
+      </div>
+      <div class="badge-row">
+        <span class="badge badge-green">Montgomery County, OH — pilot geography</span>
+        <span class="badge badge-gold">Local → State → Federal</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+<script>
+  const root = document.documentElement;
+  const btn = document.getElementById('themeToggle');
+  const iconDark = document.getElementById('icon-dark');
+  const iconLight = document.getElementById('icon-light');
+  const label = document.getElementById('toggleLabel');
+  let isLight = false;
+
+  btn.addEventListener('click', () => {
+    isLight = !isLight;
+    if (isLight) {
+      root.classList.add('light');
+      iconDark.style.display = 'none';
+      iconLight.style.display = 'block';
+      label.textContent = 'Dark mode';
+    } else {
+      root.classList.remove('light');
+      iconDark.style.display = 'block';
+      iconLight.style.display = 'none';
+      label.textContent = 'Light mode';
+    }
+  });
+</script>
+</body>
+</html>
