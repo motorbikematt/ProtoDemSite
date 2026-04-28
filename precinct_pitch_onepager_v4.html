@@ -32,6 +32,8 @@
   --red-bg:      #1a0a0a;
   --red-text:    #fca5a5;
   --red-border:  rgba(252,165,165,0.2);
+  --accent-heading: #c7dffe;
+  --ask-bg:      #071120;
 }
 
 :root.light {
@@ -57,6 +59,8 @@
   --red-bg:      #fff1f1;
   --red-text:    #991b1b;
   --red-border:  rgba(153,27,27,0.2);
+  --accent-heading: #0b3d7a;
+  --ask-bg:      #dbeafe;
 }
 
 body {
@@ -105,7 +109,7 @@ body {
 }
 
 .card-body {
-  font-size: 13.5px;
+  font-size: 15px;
   line-height: 1.72;
   color: var(--muted-2);
   margin-top: 0.6rem;
@@ -137,7 +141,7 @@ body {
 }
 
 .c-hero .card-body {
-  font-size: 14px;
+  font-size: 15px;
   color: var(--muted-2);
   max-width: 400px;
 }
@@ -174,7 +178,7 @@ body {
 
 .c-loop .card-title {
   font-size: 20px;
-  color: #c7dffe;
+  color: var(--accent-heading);
   margin-bottom: 1rem;
 }
 
@@ -221,16 +225,14 @@ body {
 }
 
 .loop-step-body {
-  font-size: 13px;
+  font-size: 14.5px;
   color: var(--accent-text);
-  line-height: 1.55;
-  opacity: 0.85;
+  line-height: 1.6;
 }
 
 .loop-step-body strong {
-  color: #c7dffe;
+  color: var(--accent-heading);
   font-weight: 500;
-  opacity: 1;
 }
 
 /* ── objection ── */
@@ -250,16 +252,21 @@ body {
 .objection-q {
   font-size: 15px;
   font-style: italic;
-  color: rgba(251,191,36,0.7);
+  color: var(--gold-text);
+  opacity: 0.7;
   margin-bottom: 0.85rem;
   padding-bottom: 0.85rem;
   border-bottom: 0.5px solid var(--gold-border);
 }
 
 .objection-a {
-  font-size: 13.5px;
-  line-height: 1.7;
-  color: rgba(251,191,36,0.6);
+  font-size: 15px;
+  line-height: 1.72;
+  color: var(--muted-2);
+}
+
+:root:not(.light) .objection-a {
+  color: rgba(251,191,36,0.65);
 }
 
 .objection-a strong {
@@ -327,9 +334,9 @@ body {
 .dot-red   { background: var(--red-text); }
 
 .claim-text {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--muted-2);
-  line-height: 1.5;
+  line-height: 1.55;
 }
 
 .demo-source {
@@ -387,8 +394,8 @@ body {
 .tier-fed    { background: var(--red-bg);    border: 0.5px solid var(--red-border);   color: var(--red-text); }
 
 .tier-text {
-  font-size: 13px;
-  line-height: 1.55;
+  font-size: 14px;
+  line-height: 1.6;
   color: var(--muted-2);
 }
 
@@ -404,8 +411,8 @@ body {
 }
 
 .c-solution .card-label { color: var(--accent); }
-.c-solution .card-title { font-size: 20px; color: #c7dffe; margin-bottom: 0.85rem; }
-.c-solution .card-body  { color: var(--accent-text); opacity: 0.85; font-size: 13.5px; }
+.c-solution .card-title { font-size: 20px; color: var(--accent-heading); margin-bottom: 0.85rem; }
+.c-solution .card-body  { color: var(--accent-text); font-size: 15px; }
 
 .solution-steps {
   display: flex;
@@ -431,16 +438,14 @@ body {
 }
 
 .sol-text {
-  font-size: 13px;
+  font-size: 14.5px;
   color: var(--accent-text);
-  line-height: 1.55;
-  opacity: 0.85;
+  line-height: 1.6;
 }
 
 .sol-text strong {
-  color: #c7dffe;
+  color: var(--accent-heading);
   font-weight: 500;
-  opacity: 1;
 }
 
 /* ── traction ── */
@@ -490,9 +495,9 @@ body {
 }
 
 .traction-text {
-  font-size: 13.5px;
+  font-size: 14.5px;
   color: var(--muted-2);
-  line-height: 1.5;
+  line-height: 1.55;
 }
 
 .traction-text strong {
@@ -548,9 +553,9 @@ body {
 }
 
 .timeline-desc {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--muted-2);
-  line-height: 1.5;
+  line-height: 1.55;
 }
 
 .timeline-desc strong {
@@ -593,7 +598,7 @@ body {
 
 /* ── ask ── */
 .c-ask {
-  background: #071120;
+  background: var(--ask-bg);
   border-color: var(--accent-dim);
 }
 
@@ -601,14 +606,13 @@ body {
 
 .c-ask .card-title {
   font-size: clamp(22px, 6vw, 28px);
-  color: #c7dffe;
+  color: var(--accent-heading);
   margin-bottom: 0.6rem;
 }
 
 .c-ask .card-body {
   color: var(--accent-text);
-  opacity: 0.8;
-  font-size: 13.5px;
+  font-size: 15px;
 }
 
 .ask-contact {
@@ -708,7 +712,7 @@ body {
 }
 
 .bridge-text {
-  font-size: 13px;
+  font-size: 14.5px;
   line-height: 1.65;
   color: var(--muted-2);
 }
@@ -733,7 +737,7 @@ body {
   <!-- ── HERO ── -->
   <div class="card c-hero">
     <p class="eyebrow">Precinct &mdash; Pre-seed &mdash; April 2026</p>
-    <h1 class="card-title">The Accountability Engine: Give Precinct Captains the Evidence to<em> Hold Officials Accountable</em></h1>
+    <h1 class="card-title">The Accountability Engine: When Voters See What Officials Said vs. What They Did,<em> They Act</em></h1>
     <p class="card-body">AI-summarized government records with source-verified accountability claims — delivered to the elected neighbor voters already trust, with a direct path to action.</p>
     <div class="tag-row">
       <span class="tag tag-blue">Government accountability</span>
