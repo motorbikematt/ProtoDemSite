@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Precinct — The Accountability Engine</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:          #0b0c0e;
+  --surface:     #14161a;
+  --surface-2:   #1b1e24;
+  --border:      rgba(255,255,255,0.07);
+  --border-2:    rgba(255,255,255,0.12);
+  --text:        #e9e8e3;
+  --muted:       #5e6573;
+  --muted-2:     #8a919e;
+  --accent:      #3b82f6;
+  --accent-dim:  #1d3a6e;
+  --accent-bg:   #0d1929;
+  --accent-text: #93c5fd;
+  --gold:        #f0b429;
+  --gold-bg:     #140f02;
+  --gold-text:   #fbbf24;
+  --gold-border: rgba(240,180,41,0.18);
+  --green-bg:    #0a1a0d;
+  --green-text:  #86efac;
+  --green-border:rgba(134,239,172,0.2);
+  --red-bg:      #1a0a0a;
+  --red-text:    #fca5a5;
+  --red-border:  rgba(252,165,165,0.2);
+}
+
+:root.light {
+  --bg:          #f4f3ef;
+  --surface:     #ffffff;
+  --surface-2:   #eeecea;
+  --border:      rgba(0,0,0,0.08);
+  --border-2:    rgba(0,0,0,0.13);
+  --text:        #141414;
+  --muted:       #888;
+  --muted-2:     #555;
+  --accent:      #185FA5;
+  --accent-dim:  #b5d4f4;
+  --accent-bg:   #e5f0fb;
+  --accent-text: #0c447c;
+  --gold:        #b45309;
+  --gold-bg:     #fffbeb;
+  --gold-text:   #92400e;
+  --gold-border: rgba(180,83,9,0.2);
+  --green-bg:    #f0fdf4;
+  --green-text:  #166534;
+  --green-border:rgba(22,101,52,0.2);
+  --red-bg:      #fff1f1;
+  --red-text:    #991b1b;
+  --red-border:  rgba(153,27,27,0.2);
+}
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 400;
+  color: var(--text);
+  background: var(--bg);
+  min-height: 100vh;
+  padding: 2rem 1rem 3rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ── layout shell ── */
+.wrap {
+  width: 100%;
+  max-width: 460px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ── base card ── */
+.card {
+  background: var(--surface);
+  border: 0.5px solid var(--border);
+  border-radius: 16px;
+  padding: 1.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.card-label {
+  font-size: 10px;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.5rem;
+}
+
+.card-title {
+  font-family: 'DM Serif Display', serif;
+  line-height: 1.15;
+  color: var(--text);
+}
+
+.card-body {
+  font-size: 13.5px;
+  line-height: 1.72;
+  color: var(--muted-2);
+  margin-top: 0.6rem;
+}
+
+/* ── hero ── */
+.c-hero {
+  background: var(--surface);
+  padding: 2rem 1.75rem 1.75rem;
+}
+
+.c-hero .eyebrow {
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 1rem;
+}
+
+.c-hero .card-title {
+  font-size: clamp(28px, 8vw, 38px);
+  margin-bottom: 0.75rem;
+  color: var(--text);
+}
+
+.c-hero .card-title em {
+  font-style: italic;
+  color: var(--accent-text);
+}
+
+.c-hero .card-body {
+  font-size: 14px;
+  color: var(--muted-2);
+  max-width: 400px;
+}
+
+.tag-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 1.2rem;
+}
+
+.tag {
+  font-size: 10.5px;
+  padding: 3px 9px;
+  border-radius: 20px;
+  border: 0.5px solid var(--border-2);
+  color: var(--muted);
+  background: var(--surface-2);
+}
+
+.tag-blue {
+  background: var(--accent-bg);
+  border-color: var(--accent-dim);
+  color: var(--accent-text);
+}
+
+/* ── mechanism loop ── */
+.c-loop {
+  background: var(--accent-bg);
+  border-color: var(--accent-dim);
+}
+
+.c-loop .card-label { color: var(--accent); }
+
+.c-loop .card-title {
+  font-size: 20px;
+  color: #c7dffe;
+  margin-bottom: 1rem;
+}
+
+.loop-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.loop-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.9rem;
+  padding: 0.65rem 0;
+  border-bottom: 0.5px solid rgba(59,130,246,0.12);
+}
+
+.loop-step:last-child { border-bottom: none; }
+
+.loop-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: rgba(59,130,246,0.14);
+  border: 0.5px solid rgba(59,130,246,0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 13px;
+  margin-top: 1px;
+}
+
+.loop-step-text {
+  flex: 1;
+}
+
+.loop-step-num {
+  font-size: 10px;
+  color: var(--accent);
+  letter-spacing: 0.08em;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.loop-step-body {
+  font-size: 13px;
+  color: var(--accent-text);
+  line-height: 1.55;
+  opacity: 0.85;
+}
+
+.loop-step-body strong {
+  color: #c7dffe;
+  font-weight: 500;
+  opacity: 1;
+}
+
+/* ── objection ── */
+.c-objection {
+  background: var(--gold-bg);
+  border-color: var(--gold-border);
+}
+
+.c-objection .card-label { color: var(--gold); }
+
+.c-objection .card-title {
+  font-size: 20px;
+  color: var(--gold-text);
+  margin-bottom: 0.5rem;
+}
+
+.objection-q {
+  font-size: 15px;
+  font-style: italic;
+  color: rgba(251,191,36,0.7);
+  margin-bottom: 0.85rem;
+  padding-bottom: 0.85rem;
+  border-bottom: 0.5px solid var(--gold-border);
+}
+
+.objection-a {
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: rgba(251,191,36,0.6);
+}
+
+.objection-a strong {
+  color: var(--gold-text);
+  font-weight: 500;
+}
+
+/* ── contradiction demo ── */
+.c-demo {
+  background: var(--surface-2);
+  border-color: var(--border-2);
+  padding: 0;
+  overflow: hidden;
+}
+
+.demo-header {
+  padding: 1rem 1.25rem 0.75rem;
+  border-bottom: 0.5px solid var(--border-2);
+}
+
+.demo-label {
+  font-size: 10px;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.4rem;
+}
+
+.demo-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.demo-claim {
+  padding: 0.85rem 1.25rem;
+  border-bottom: 0.5px solid var(--border);
+}
+
+.demo-claim:last-child { border-bottom: none; }
+
+.claim-tag {
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.claim-tag-said { color: var(--green-text); }
+.claim-tag-record { color: var(--red-text); }
+
+.claim-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.dot-green { background: var(--green-text); }
+.dot-red   { background: var(--red-text); }
+
+.claim-text {
+  font-size: 13px;
+  color: var(--muted-2);
+  line-height: 1.5;
+}
+
+.demo-source {
+  padding: 0.6rem 1.25rem 0.85rem;
+  font-size: 11px;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.source-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex-shrink: 0;
+}
+
+/* ── three tiers ── */
+.c-tiers {
+  background: var(--surface);
+  border-color: var(--border);
+}
+
+.tier-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-top: 0.85rem;
+}
+
+.tier-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.65rem 0;
+  border-bottom: 0.5px solid var(--border);
+}
+
+.tier-item:last-child { border-bottom: none; }
+
+.tier-badge {
+  font-size: 10px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.tier-local  { background: var(--green-bg);  border: 0.5px solid var(--green-border); color: var(--green-text); }
+.tier-state  { background: var(--accent-bg); border: 0.5px solid var(--accent-dim);  color: var(--accent-text); }
+.tier-fed    { background: var(--red-bg);    border: 0.5px solid var(--red-border);   color: var(--red-text); }
+
+.tier-text {
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--muted-2);
+}
+
+.tier-text strong {
+  color: var(--text);
+  font-weight: 500;
+}
+
+/* ── solution ── */
+.c-solution {
+  background: var(--accent-bg);
+  border-color: var(--accent-dim);
+}
+
+.c-solution .card-label { color: var(--accent); }
+.c-solution .card-title { font-size: 20px; color: #c7dffe; margin-bottom: 0.85rem; }
+.c-solution .card-body  { color: var(--accent-text); opacity: 0.85; font-size: 13.5px; }
+
+.solution-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-top: 1rem;
+}
+
+.sol-step {
+  display: flex;
+  gap: 0.85rem;
+  padding: 0.65rem 0;
+  border-top: 0.5px solid rgba(59,130,246,0.1);
+}
+
+.sol-num {
+  font-family: 'DM Serif Display', serif;
+  font-size: 18px;
+  color: rgba(59,130,246,0.35);
+  flex-shrink: 0;
+  width: 22px;
+  margin-top: -1px;
+}
+
+.sol-text {
+  font-size: 13px;
+  color: var(--accent-text);
+  line-height: 1.55;
+  opacity: 0.85;
+}
+
+.sol-text strong {
+  color: #c7dffe;
+  font-weight: 500;
+  opacity: 1;
+}
+
+/* ── traction ── */
+.c-traction {
+  background: var(--surface);
+  border-color: var(--border);
+}
+
+.traction-items {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-top: 0.85rem;
+}
+
+.traction-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.6rem 0;
+  border-bottom: 0.5px solid var(--border);
+}
+
+.traction-item:last-child { border-bottom: none; }
+
+.traction-check {
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+  background: var(--green-bg);
+  border: 0.5px solid var(--green-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.traction-check svg {
+  width: 10px;
+  height: 10px;
+  stroke: var(--green-text);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+}
+
+.traction-text {
+  font-size: 13.5px;
+  color: var(--muted-2);
+  line-height: 1.5;
+}
+
+.traction-text strong {
+  color: var(--text);
+  font-weight: 500;
+}
+
+/* ── timeline ── */
+.c-timeline {
+  background: var(--surface-2);
+  border-color: var(--border-2);
+}
+
+.timeline-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-top: 0.85rem;
+}
+
+.timeline-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.9rem;
+  padding: 0.65rem 0;
+  border-bottom: 0.5px solid var(--border);
+  position: relative;
+}
+
+.timeline-item:last-child { border-bottom: none; }
+
+.timeline-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+
+.dot-now   { background: var(--accent); }
+.dot-mid   { background: var(--gold); }
+.dot-far   { background: var(--green-text); }
+
+.timeline-content {}
+
+.timeline-date {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+.timeline-desc {
+  font-size: 13px;
+  color: var(--muted-2);
+  line-height: 1.5;
+}
+
+.timeline-desc strong {
+  color: var(--text);
+  font-weight: 500;
+}
+
+/* ── founder ── */
+.c-founder {
+  background: var(--surface);
+  border-color: var(--border);
+}
+
+.c-founder .card-title {
+  font-size: 19px;
+  margin-bottom: 0.75rem;
+}
+
+.founder-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 0.85rem;
+}
+
+.pill {
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 0.5px solid var(--border-2);
+  color: var(--muted-2);
+  background: var(--surface-2);
+}
+
+.pill-blue {
+  background: var(--accent-bg);
+  border-color: var(--accent-dim);
+  color: var(--accent-text);
+}
+
+/* ── ask ── */
+.c-ask {
+  background: #071120;
+  border-color: var(--accent-dim);
+}
+
+.c-ask .card-label { color: var(--accent); }
+
+.c-ask .card-title {
+  font-size: clamp(22px, 6vw, 28px);
+  color: #c7dffe;
+  margin-bottom: 0.6rem;
+}
+
+.c-ask .card-body {
+  color: var(--accent-text);
+  opacity: 0.8;
+  font-size: 13.5px;
+}
+
+.ask-contact {
+  margin-top: 1.25rem;
+  padding-top: 1.1rem;
+  border-top: 0.5px solid rgba(59,130,246,0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.contact-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.contact-role {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.contact-email {
+  font-size: 13px;
+  color: var(--accent-text);
+  text-decoration: none;
+  margin-top: 4px;
+}
+
+.contact-email:hover {
+  text-decoration: underline;
+}
+
+/* ── footer ── */
+.c-footer {
+  text-align: center;
+  background: transparent;
+  border: none;
+  padding: 0.5rem 0 0;
+}
+
+.footer-text {
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+/* ── theme toggle ── */
+.theme-toggle {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px 6px 9px;
+  border-radius: 99px;
+  border: 0.5px solid var(--border-2);
+  background: var(--surface);
+  color: var(--accent-text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+  transition: box-shadow 0.2s;
+}
+
+.theme-toggle:hover { box-shadow: 0 3px 16px rgba(0,0,0,0.4); }
+
+.theme-toggle svg {
+  width: 13px; height: 13px;
+  fill: none; stroke: currentColor;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ── bridge callout ── */
+.c-bridge {
+  background: var(--surface-2);
+  border-color: var(--border-2);
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  padding: 1.1rem 1.25rem;
+}
+
+.bridge-line {
+  width: 2.5px;
+  align-self: stretch;
+  background: var(--accent);
+  border-radius: 2px;
+  flex-shrink: 0;
+  min-height: 20px;
+}
+
+.bridge-text {
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--muted-2);
+}
+
+.bridge-text strong {
+  color: var(--text);
+  font-weight: 500;
+}
+
+</style>
+</head>
+<body>
+
+<button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+  <svg id="icon-dark" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+  <svg id="icon-light" viewBox="0 0 24 24" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+  <span id="toggleLabel">Light</span>
+</button>
+
+<div class="wrap">
+
+  <!-- ── HERO ── -->
+  <div class="card c-hero">
+    <p class="eyebrow">Precinct &mdash; Pre-seed &mdash; April 2026</p>
+    <h1 class="card-title">The Accountability Engine: Give Precinct Captains the Evidence to<em> Hold Officials Accountable</em></h1>
+    <p class="card-body">AI-summarized government records with source-verified accountability claims — delivered to the elected neighbor voters already trust, with a direct path to action.</p>
+    <div class="tag-row">
+      <span class="tag tag-blue">Government accountability</span>
+      <span class="tag tag-blue">Civic tech</span>
+      <span class="tag">AI-native</span>
+      <span class="tag">Montgomery County, OH</span>
+    </div>
+  </div>
+
+  <!-- ── HOW IT WORKS ── -->
+  <div class="card c-loop">
+    <p class="card-label">The mechanism</p>
+    <p class="card-title">Evidence in. Accountability out.</p>
+    <div class="loop-steps">
+      <div class="loop-step">
+        <div class="loop-icon">📄</div>
+        <div class="loop-step-text">
+          <p class="loop-step-num">01 — Ingest</p>
+          <p class="loop-step-body"><strong>AI ingests official records</strong> — votes, minutes, agendas, bills — across local, state, and federal tiers. Surfaces gaps between stated positions and official actions.</p>
+        </div>
+      </div>
+      <div class="loop-step">
+        <div class="loop-icon">🗂️</div>
+        <div class="loop-step-text">
+          <p class="loop-step-num">02 — Arm</p>
+          <p class="loop-step-body">Captain receives <strong>source-verified contradiction cards</strong>: what the official said, what the record shows, and the citation. Ready to share in thirty seconds.</p>
+        </div>
+      </div>
+      <div class="loop-step">
+        <div class="loop-icon">🤝</div>
+        <div class="loop-step-text">
+          <p class="loop-step-num">03 — Engage</p>
+          <p class="loop-step-body">Captain shows the gap to a neighbor — not a stranger, <strong>an elected representative they already know</strong>. Credibility does the work that cold outreach can't.</p>
+        </div>
+      </div>
+      <div class="loop-step">
+        <div class="loop-icon">📞</div>
+        <div class="loop-step-text">
+          <p class="loop-step-num">04 — Act</p>
+          <p class="loop-step-body">Voter gets a <strong>one-tap action</strong>: call script, email template, public comment window, or meeting time. Officials respond — or their record shows they didn't.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── OBJECTION ── -->
+  <div class="card c-objection">
+    <p class="card-label">The objection answered</p>
+    <p class="card-title">Why voters will engage</p>
+    <p class="objection-q">"Voters don't show up. Why would they call an official over a digest?"</p>
+    <p class="objection-a">They won't — for a generic newsletter. They will when <strong>their neighbor</strong> hands them a specific contradiction and a direct action step. The captain isn't a brand; they're an elected person from the same three streets. <strong>Credibility is the mechanism.</strong> The information alone doesn't move people. The information plus a trusted face plus a clear next step does. That combination has never been systematically delivered before.</p>
+  </div>
+
+  <!-- ── CONTRADICTION DEMO ── -->
+  <div class="card c-demo">
+    <div class="demo-header">
+      <p class="demo-label">Illustrative claim card</p>
+      <p class="demo-title">What a captain shares</p>
+    </div>
+    <div class="demo-claim">
+      <p class="claim-tag claim-tag-said">
+        <span class="claim-dot dot-green"></span> Said publicly
+      </p>
+      <p class="claim-text">"I strongly support fully funding our public schools and protecting district budgets."</p>
+    </div>
+    <div class="demo-claim">
+      <p class="claim-tag claim-tag-record">
+        <span class="claim-dot dot-red"></span> Official record shows
+      </p>
+      <p class="claim-text">Voted against HB 96 school funding amendment, 03/18/2025. Amendment failed 47–52.</p>
+    </div>
+    <div class="demo-source">
+      <span class="source-dot"></span>
+      Source: Ohio House Journal, 135th General Assembly · Verified by Precinct AI
+    </div>
+  </div>
+
+  <!-- ── THREE TIERS ── -->
+  <div class="card c-tiers">
+    <p class="card-label">Scope</p>
+    <p class="card-title" style="font-size:19px; margin-bottom:0.15rem">All three tiers held accountable</p>
+    <p class="card-body" style="margin-bottom:0; font-size:13px;">One captain. Every layer of government that touches their neighbors' lives.</p>
+    <div class="tier-row">
+      <div class="tier-item">
+        <span class="tier-badge tier-local">Local</span>
+        <span class="tier-text"><strong>City council, school board, township trustees</strong> — the officials closest to daily life, least watched.</span>
+      </div>
+      <div class="tier-item">
+        <span class="tier-badge tier-state">State</span>
+        <span class="tier-text"><strong>State legislators</strong> — votes on education, labor, and healthcare that drive most local outcomes.</span>
+      </div>
+      <div class="tier-item">
+        <span class="tier-badge tier-fed">Federal</span>
+        <span class="tier-text"><strong>Congressional delegation</strong> — positioned votes and constituent service records, not just soundbites.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── BRIDGE ── -->
+  <div class="card c-bridge">
+    <div class="bridge-line"></div>
+    <p class="bridge-text"><strong>Accountability &gt; transparency.</strong> Transparency gives voters raw information. Accountability gives them a specific contradiction, a credible messenger, and a path to response. Precinct delivers all three — every cycle, every tier.</p>
+  </div>
+
+  <!-- ── SOLUTION ── -->
+  <div class="card c-solution">
+    <p class="card-label">What we build</p>
+    <p class="card-title">Three layers that didn't exist before</p>
+    <div class="solution-steps">
+      <div class="sol-step">
+        <span class="sol-num">1</span>
+        <span class="sol-text"><strong>Record ingestion engine</strong> — continuous ingest of official documents across all three tiers. LLM-structured, source-linked, jurisdiction-resolved.</span>
+      </div>
+      <div class="sol-step">
+        <span class="sol-num">2</span>
+        <span class="sol-text"><strong>Captain publishing interface</strong> — contradiction cards, digest drafts, and action-step templates ready to edit and push in one workflow. No research required.</span>
+      </div>
+      <div class="sol-step">
+        <span class="sol-num">3</span>
+        <span class="sol-text"><strong>Constituent response layer</strong> — subscribers read, react, and act. Response data becomes geo-tagged engagement intelligence for the party — and a paper trail for officials.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TRACTION ── -->
+  <div class="card c-traction">
+    <p class="card-label">Validation</p>
+    <p class="card-title" style="font-size:19px;">Partners and captains are already in</p>
+    <div class="traction-items">
+      <div class="traction-item">
+        <div class="traction-check"><svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>
+        <span class="traction-text"><strong>SDDC (South Dayton Democratic Club)</strong> — ready to pilot as founding customer.</span>
+      </div>
+      <div class="traction-item">
+        <div class="traction-check"><svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>
+        <span class="traction-text"><strong>Montgomery County Democratic Party</strong> — party leadership engaged and ready to pilot alongside club network.</span>
+      </div>
+      <div class="traction-item">
+        <div class="traction-check"><svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>
+        <span class="traction-text"><strong>School board chair</strong> (also county party chair) — institutional access to the accountability target population from day one.</span>
+      </div>
+      <div class="traction-item">
+        <div class="traction-check"><svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></div>
+        <span class="traction-text"><strong>Multiple captains have asked for this</strong> — organic demand from the exact user before a line of code is written.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TIMELINE ── -->
+  <div class="card c-timeline">
+    <p class="card-label">Roadmap</p>
+    <p class="card-title" style="font-size:19px;">7 months to midterms. 2 years to scale.</p>
+    <div class="timeline-row">
+      <div class="timeline-item">
+        <span class="timeline-dot dot-now"></span>
+        <div class="timeline-content">
+          <p class="timeline-date">Now → Nov 2026</p>
+          <p class="timeline-desc"><strong>Montgomery County MVP</strong> — record ingestion, captain publishing interface, subscriber layer. Live before midterms.</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <span class="timeline-dot dot-mid"></span>
+        <div class="timeline-content">
+          <p class="timeline-date">2027</p>
+          <p class="timeline-desc"><strong>Adjacent Ohio counties</strong> — replicate the model with county party partners already in the network.</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <span class="timeline-dot dot-far"></span>
+        <div class="timeline-content">
+          <p class="timeline-date">2028</p>
+          <p class="timeline-desc"><strong>10+ counties by the presidential cycle</strong> — infrastructure for accountability at scale entering the highest-turnout year.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── FOUNDER ── -->
+  <div class="card c-founder">
+    <p class="card-label">Founder</p>
+    <p class="card-title">0→1 Silicon Valley. Precinct captain on the ground.</p>
+    <p class="card-body">Built and shipped products from zero at Silicon Valley startups. Now running as a precinct captain in Kettering and embedded in the Montgomery County Democratic Party network. The product comes from living the problem — not observing it from outside.</p>
+    <div class="founder-pills">
+      <span class="pill pill-blue">0→1 product builder</span>
+      <span class="pill pill-blue">Kettering precinct captain</span>
+      <span class="pill">Montgomery County, OH</span>
+      <span class="pill">SDDC member</span>
+    </div>
+  </div>
+
+  <!-- ── ASK ── -->
+  <div class="card c-ask">
+    <p class="card-label">The ask</p>
+    <p class="card-title">Pre-seed coffee call.<br>One county. One cycle. Proof.</p>
+    <p class="card-body">Not looking for a partner to explain civic tech to. Looking for someone who gets why accountability infrastructure matters right now — and wants to back the MVP that proves the model before the 2026 midterms. Everything needed to close the loop in one county already exists: the partners, the captains, the use case, the builder.</p>
+    <div class="ask-contact">
+      <span class="contact-name">Matt Rhoades</span>
+      <span class="contact-role">Founder, Precinct &mdash; Kettering 01-A Captain</span>
+      <a class="contact-email" href="mailto:motorbikematt@gmail.com">motorbikematt@gmail.com</a>
+    </div>
+  </div>
+
+  <!-- ── FOOTER ── -->
+  <div class="card c-footer">
+    <p class="footer-text">Precinct &mdash; Montgomery County, Ohio &mdash; April 2026<br>Pre-seed · Civic tech · Government accountability</p>
+  </div>
+
+</div>
+
+<script>
+  const root = document.documentElement;
+  const btn = document.getElementById('themeToggle');
+  const iconDark = document.getElementById('icon-dark');
+  const iconLight = document.getElementById('icon-light');
+  const label = document.getElementById('toggleLabel');
+  let isLight = false;
+
+  btn.addEventListener('click', () => {
+    isLight = !isLight;
+    if (isLight) {
+      root.classList.add('light');
+      iconDark.style.display = 'none';
+      iconLight.style.display = 'block';
+      label.textContent = 'Dark';
+    } else {
+      root.classList.remove('light');
+      iconDark.style.display = 'block';
+      iconLight.style.display = 'none';
+      label.textContent = 'Light';
+    }
+  });
+</script>
+</body>
+</html>
